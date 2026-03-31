@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BYD Business Suite v5.3</title>
+    <title>BYD Business Suite v5.9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .tab-content { display: none; }
@@ -11,6 +11,7 @@
         #historicoLogs::-webkit-scrollbar { width: 4px; }
         #historicoLogs::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .card-glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.05); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans p-4 md:p-8">
@@ -18,8 +19,8 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-8 bg-slate-900 p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">BYD CAPITAL <span class="text-green-500 text-xs">v5.3</span></h1>
-                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold font-mono">Asset Management System</p>
+                <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">BYD BUSINESS <span class="text-green-500 text-xs">v5.9</span></h1>
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Gestão de Ativos & Eficiência</p>
             </div>
             <nav class="flex bg-slate-800 p-1 rounded-xl w-full md:w-auto">
                 <button onclick="switchTab('simulador')" id="btn-simulador" class="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase transition-all bg-green-600 text-slate-950 shadow-lg">Simulação</button>
@@ -29,62 +30,76 @@
 
         <div id="tab-simulador" class="tab-content active">
             <div class="grid lg:grid-cols-3 gap-6">
-                
                 <div class="space-y-4">
-                    <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                    <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg card-glow">
                         <h2 class="text-green-500 font-black text-[10px] mb-4 uppercase tracking-widest italic">💰 Gestão de Capital</h2>
                         <div class="space-y-3">
-                            <label class="block text-[10px] text-slate-500 uppercase font-bold">Valor Total do Carro (R$)<input type="number" id="vCarro" value="160000" oninput="calcular()" class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700"></label>
-                            <label class="block text-[10px] text-slate-500 uppercase font-bold">Valor da Entrada (R$)<input type="number" id="vEntrada" value="40000" oninput="calcular()" class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-blue-400 font-bold border border-slate-700"></label>
-                            <div class="p-3 bg-slate-950/50 rounded-lg border border-slate-800">
-                                <span class="text-[9px] text-slate-500 uppercase">Financiado:</span>
-                                <span id="resFinanciado" class="text-sm font-mono font-bold text-slate-300 block">R$ 0,00</span>
+                            <label class="block text-[10px] text-slate-500 uppercase font-bold">Valor do Carro (R$)
+                                <input type="text" id="vCarro" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
+                            </label>
+                            <label class="block text-[10px] text-slate-500 uppercase font-bold">Entrada (R$)
+                                <input type="text" id="vEntrada" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-blue-400 font-bold border border-slate-700">
+                            </label>
+                            <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 flex justify-between items-center">
+                                <span class="text-[9px] text-slate-500 uppercase font-bold italic">Financiado:</span>
+                                <span id="resFinanciado" class="text-xs font-mono font-bold text-slate-300 tracking-tighter">R$ 0,00</span>
                             </div>
                         </div>
                     </section>
 
-                    <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                    <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg">
                         <h2 class="text-slate-500 font-black text-[10px] mb-4 uppercase tracking-widest italic">📈 Operação Mensal</h2>
                         <div class="space-y-3">
-                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Faturamento (R$)<input type="number" id="faturamento" value="10000" oninput="calcular()" class="w-full bg-slate-800 rounded-lg p-3 mt-1 outline-none text-green-400 font-black text-xl"></label>
-                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Parcela (R$)<input type="number" id="parcela" value="2100" oninput="calcular()" class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700"></label>
+                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Faturamento (R$)
+                                <input type="text" id="faturamento" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-3 mt-1 outline-none text-green-400 font-black text-xl">
+                            </label>
+                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Parcela (R$)
+                                <input type="text" id="parcela" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
+                            </label>
                             <select id="modeloByd" onchange="calcular()" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white text-xs font-bold outline-none">
-                                <option value="0.12" selected>Dolphin GS (12% Depr.)</option>
+                                <option value="0.12">Dolphin GS (12% Depr.)</option>
                                 <option value="0.14">Dolphin Mini (14% Depr.)</option>
                                 <option value="0.16">BYD King (16% Depr.)</option>
                                 <option value="0.17">Song Plus (17% Depr.)</option>
                             </select>
-                            <button onclick="limparCamposDashboard()" class="w-full py-2 text-[8px] font-black uppercase text-slate-600 border border-slate-800 rounded mt-4 hover:bg-slate-800 transition-all">Limpar Todos os Campos</button>
+                            <button onclick="limparCamposDashboard()" class="w-full py-2 text-[8px] font-black uppercase text-slate-600 border border-slate-800 rounded mt-2 hover:bg-slate-800 transition-all italic">↻ Resetar Simulação</button>
                         </div>
                     </section>
                 </div>
 
                 <div class="lg:col-span-2 space-y-6">
                     <div class="grid md:grid-cols-2 gap-4">
-                        <div class="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden">
-                            <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Caixa (Dinheiro no Bolso)</h2>
-                            <div id="resCaixa" class="text-4xl font-black text-white">R$ 0,00</div>
-                            <p class="text-[9px] text-slate-600 mt-2 italic">Saldo mensal após pagar as contas.</p>
+                        <div class="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 shadow-2xl relative">
+                            <span class="absolute top-4 right-6 text-slate-800 font-black text-2xl italic">HOJE</span>
+                            <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso (Caixa)</h2>
+                            <div id="resCaixa" class="text-4xl md:text-5xl font-black text-white">R$ 0,00</div>
                         </div>
-                        <div class="bg-gradient-to-br from-green-950/20 to-slate-950 p-8 rounded-3xl border border-green-900/30 shadow-2xl relative overflow-hidden">
+                        <div class="bg-gradient-to-br from-green-950/20 to-slate-950 p-8 rounded-3xl border border-green-900/30 shadow-2xl relative">
+                            <span class="absolute top-4 right-6 text-green-900/20 font-black text-2xl italic">LUCRO</span>
                             <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Real (Patrimonial)</h2>
-                            <div id="resReal" class="text-4xl font-black text-green-400">R$ 0,00</div>
-                            <p class="text-[9px] text-green-800 mt-2 italic">Valor após descontar a depreciação do carro.</p>
+                            <div id="resReal" class="text-4xl md:text-5xl font-black text-green-400">R$ 0,00</div>
                         </div>
                     </div>
 
-                    <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800">
+                    <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl">
+                        <h3 class="text-[10px] font-black text-slate-600 uppercase mb-6 italic">Custos Variáveis</h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-                            <label class="block text-[10px] text-slate-500 uppercase font-bold">Energia/Fuel<input type="number" id="energiaManual" value="1300" oninput="calcular()" class="w-full bg-slate-800 rounded p-2 mt-1 text-blue-400 font-bold border border-blue-900/40"></label>
-                            <label class="block text-[10px] text-slate-500 uppercase font-bold">Seguro/Manut<input type="number" id="segManut" value="850" oninput="calcular()" class="w-full bg-slate-800 rounded p-2 mt-1 text-white font-bold border border-slate-700"></label>
-                            <label class="block text-[10px] text-slate-500 uppercase font-bold">KM Mensal<input type="number" id="kmMensal" value="4000" oninput="calcular()" class="w-full bg-slate-800 rounded p-2 mt-1 text-white font-bold border border-slate-700"></label>
+                            <label class="block text-[10px] text-slate-500 uppercase font-bold italic">Energia/Fuel
+                                <input type="text" id="energiaManual" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded p-2 mt-1 text-blue-400 font-bold border border-slate-700">
+                            </label>
+                            <label class="block text-[10px] text-slate-500 uppercase font-bold italic">Seguro/Manut
+                                <input type="text" id="segManut" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded p-2 mt-1 text-white font-bold border border-slate-700">
+                            </label>
+                            <label class="block text-[10px] text-slate-500 uppercase font-bold italic">KM Mensal
+                                <input type="number" id="kmMensal" oninput="calcular()" placeholder="0" class="w-full bg-slate-800 rounded p-2 mt-1 text-white font-bold border border-slate-700">
+                            </label>
                         </div>
                         <div class="flex justify-between items-center border-t border-slate-800 pt-6">
                             <div>
-                                <span class="text-[10px] text-slate-500 uppercase font-bold">Custo Total / KM</span>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold italic">Custo por KM</span>
                                 <div id="resCPK" class="text-2xl font-black text-white font-mono">R$ 0,00</div>
                             </div>
-                            <div id="statusTag" class="px-5 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest">ANALISANDO</div>
+                            <div id="statusTag" class="px-5 py-2 rounded-lg font-black text-[9px] uppercase">CALCULANDO...</div>
                         </div>
                     </div>
                 </div>
@@ -94,15 +109,24 @@
         <div id="tab-log" class="tab-content">
             <div class="max-w-md mx-auto space-y-4">
                 <section class="bg-slate-900 p-6 rounded-3xl border border-blue-900/30">
-                    <h2 class="text-blue-400 font-black text-xs uppercase mb-6 tracking-widest italic text-center">Registro de Recarga</h2>
+                    <h2 class="text-blue-400 font-black text-xs uppercase mb-6 text-center italic">Novo Registro de Carga</h2>
                     <div class="space-y-4">
-                        <input type="number" id="log-valor" step="0.01" placeholder="Valor Pago (R$)" class="w-full bg-slate-800 rounded-xl p-4 font-bold text-xl outline-none focus:ring-2 ring-blue-600 text-white border border-slate-700">
-                        <input type="number" id="log-km" placeholder="KM Atual" class="w-full bg-slate-800 rounded-xl p-4 font-bold text-xl outline-none focus:ring-2 ring-blue-600 text-white border border-slate-700">
-                        <button onclick="salvarLog()" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase text-sm text-white shadow-xl active:scale-95 transition-all">Salvar no Histórico</button>
+                        <input type="text" id="log-valor" oninput="mascaraMoeda(event)" placeholder="Valor Pago (R$)" class="w-full bg-slate-800 rounded-xl p-4 font-bold text-xl text-white outline-none">
+                        <input type="number" id="log-km" placeholder="KM Atual" class="w-full bg-slate-800 rounded-xl p-4 font-bold text-xl text-white outline-none">
+                        <button onclick="salvarLog()" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase text-white shadow-xl">Salvar no Banco</button>
                     </div>
                 </section>
-                <div id="historicoLogs" class="space-y-2 max-h-[300px] overflow-y-auto pr-1"></div>
-                <button onclick="limparLogs()" class="w-full text-red-900 text-[8px] font-black uppercase py-4">Zerar Banco de Dados</button>
+                <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                    <div class="flex justify-between items-center mb-4 px-2">
+                        <h3 class="text-[10px] font-black text-slate-500 uppercase italic">Histórico</h3>
+                        <div class="flex gap-2">
+                            <button onclick="exportarDados()" class="text-[8px] font-black bg-slate-800 px-2 py-1 rounded text-blue-400 uppercase">💾 Backup</button>
+                            <label class="text-[8px] font-black bg-slate-800 px-2 py-1 rounded text-green-500 uppercase cursor-pointer">📂 Importar<input type="file" id="importFile" class="hidden" onchange="importarDados(event)"></label>
+                        </div>
+                    </div>
+                    <div id="historicoLogs" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
+                </section>
+                <button onclick="limparLogs()" class="w-full text-red-900 text-[8px] font-black uppercase py-4 opacity-30 hover:opacity-100 italic">⚠️ Limpar Histórico</button>
             </div>
         </div>
     </div>
@@ -114,87 +138,111 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + t).classList.add('active');
             const bS = document.getElementById('btn-simulador'), bL = document.getElementById('btn-log');
-            if(t==='simulador'){ bS.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase bg-green-600 text-slate-950 shadow-lg"; bL.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400"; calcular(); }
-            else{ bL.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase bg-blue-600 text-white shadow-lg"; bS.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400"; renderLogs(); }
+            if(t==='simulador'){
+                bS.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase bg-green-600 text-slate-950";
+                bL.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400";
+                calcular();
+            } else {
+                bL.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase bg-blue-600 text-white";
+                bS.className="flex-1 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400";
+                renderLogs();
+            }
+        }
+
+        function mascaraMoeda(event) {
+            let value = event.target.value.replace(/\D/g, "");
+            const result = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(value) / 100);
+            event.target.value = value ? "R$ " + result : "";
+            if(event.target.id !== 'log-valor') calcular();
+        }
+
+        function formatToFloat(valorStr) {
+            if (!valorStr) return 0;
+            return parseFloat(valorStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0;
         }
 
         function calcular() {
-            const vCarro = parseFloat(document.getElementById('vCarro').value) || 0;
-            const vEntrada = parseFloat(document.getElementById('vEntrada').value) || 0;
-            const faturamento = parseFloat(document.getElementById('faturamento').value) || 0;
-            const parcela = parseFloat(document.getElementById('parcela').value) || 0;
-            const kmMensal = parseFloat(document.getElementById('kmMensal').value) || 1;
-            const depAnual = parseFloat(document.getElementById('modeloByd').value);
-            const segManut = parseFloat(document.getElementById('segManut').value) || 0;
+            const campos = ['vCarro', 'vEntrada', 'faturamento', 'parcela', 'energiaManual', 'segManut', 'kmMensal', 'modeloByd'];
+            const save = {};
+            campos.forEach(id => save[id] = document.getElementById(id).value);
+            localStorage.setItem('byd_simulador_save', JSON.stringify(save));
 
-            // Saldo Financiado
-            document.getElementById('resFinanciado').innerText = `R$ ${(vCarro - vEntrada).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            const vC = formatToFloat(save.vCarro), vE = formatToFloat(save.vEntrada), fat = formatToFloat(save.faturamento);
+            const par = formatToFloat(save.parcela), seg = formatToFloat(save.segManut), kmM = parseFloat(save.kmMensal) || 1;
+            const depA = parseFloat(save.modeloByd);
 
-            // Energia: Se houver LOG, usa a média. Senão, usa o manual.
             let mediaLog = 0, conta = 0;
             for(let i=0; i<Math.min(logs.length-1, 5); i++){
                 const dK = logs[i].km - logs[i+1].km;
                 if(dK > 0){ mediaLog += (logs[i].valor / dK); conta++; }
             }
             const cpkLog = conta > 0 ? (mediaLog / conta) : null;
-            const campoEnergia = document.getElementById('energiaManual');
-            let custoEnergiaMensal;
-
-            if(cpkLog && kmMensal > 1) {
-                custoEnergiaMensal = cpkLog * kmMensal;
-                campoEnergia.placeholder = custoEnergiaMensal.toFixed(0);
-                campoEnergia.classList.add('border-blue-500', 'bg-blue-950/10');
-            } else {
-                custoEnergiaMensal = parseFloat(campoEnergia.value) || 0;
-                campoEnergia.classList.remove('border-blue-500', 'bg-blue-950/10');
-            }
-
-            // Cálculos Finais
-            const depMensal = (vCarro * depAnual) / 12;
-            const lucroCaixa = faturamento - parcela - segManut - custoEnergiaMensal;
-            const lucroReal = lucroCaixa - depMensal;
-            const cpkTotal = (parcela + segManut + custoEnergiaMensal + depMensal) / kmMensal;
+            const cEnergia = cpkLog ? (cpkLog * kmM) : formatToFloat(save.energiaManual);
+            
+            const depM = (vC * depA) / 12;
+            const caixa = fat - par - seg - cEnergia;
+            const real = caixa - depM;
+            const cpkT = (par + seg + cEnergia + depM) / kmM;
 
             const fmt = (v) => v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-            document.getElementById('resCaixa').innerText = `R$ ${fmt(lucroCaixa)}`;
-            document.getElementById('resReal').innerText = `R$ ${fmt(lucroReal)}`;
-            document.getElementById('resCPK').innerText = `R$ ${cpkTotal.toFixed(2)}`;
+            document.getElementById('resFinanciado').innerText = `R$ ${fmt(vC - vE)}`;
+            document.getElementById('resCaixa').innerText = `R$ ${fmt(caixa)}`;
+            document.getElementById('resReal').innerText = `R$ ${fmt(real)}`;
+            document.getElementById('resCPK').innerText = `R$ ${cpkT.toFixed(2)}`;
 
             const tag = document.getElementById('statusTag');
-            if(lucroReal > 3000){ tag.className="px-5 py-2 rounded-lg font-black text-[9px] bg-green-500 text-green-950"; tag.innerText="ALTA PERFORMANCE"; }
-            else if(lucroReal > 1000){ tag.className="px-5 py-2 rounded-lg font-black text-[9px] bg-yellow-500 text-yellow-950"; tag.innerText="ESTÁVEL"; }
-            else { tag.className="px-5 py-2 rounded-lg font-black text-[9px] bg-red-600 text-white"; tag.innerText="RISCO OPERACIONAL"; }
+            if(real > 3000){ tag.className="px-5 py-2 rounded-lg font-black text-[9px] bg-green-500 text-green-950"; tag.innerText="ALTA PERFORMANCE"; }
+            else { tag.className="px-5 py-2 rounded-lg font-black text-[9px] bg-yellow-500 text-yellow-950"; tag.innerText="OPERACIONAL"; }
+        }
+
+        function carregarDados() {
+            const salvo = localStorage.getItem('byd_simulador_save');
+            if(salvo) {
+                const d = JSON.parse(salvo);
+                Object.keys(d).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = d[id]; });
+            }
+            calcular();
         }
 
         function salvarLog() {
-            let v = parseFloat(document.getElementById('log-valor').value);
+            const v = formatToFloat(document.getElementById('log-valor').value);
             const k = parseInt(document.getElementById('log-km').value);
-            if(!v || !k) return;
-            if(v < 10 && confirm("Preço por kWh?")) v = v * 60;
+            if(!v || !k) return alert("Preencha Valor e KM");
             logs.unshift({ data: new Date().toLocaleDateString('pt-BR'), valor: v, km: k });
             localStorage.setItem('byd_logs', JSON.stringify(logs));
             document.getElementById('log-valor').value = ""; document.getElementById('log-km').value = "";
-            renderLogs();
+            renderLogs(); calcular();
         }
 
         function renderLogs() {
             const h = document.getElementById('historicoLogs'); h.innerHTML = "";
             logs.forEach((l, i) => {
                 let e = ""; if(logs[i+1]){ const d = l.km - logs[i+1].km; if(d>0) e = `<span class="text-blue-500 font-bold">R$ ${(l.valor/d).toFixed(2)}/km</span>`; }
-                h.innerHTML += `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center mb-2"><div><p class="text-[8px] text-slate-500 uppercase">${l.data}</p><p class="text-lg font-bold text-white font-mono">R$ ${l.valor.toFixed(2)}</p></div><div class="text-right"><p class="text-[8px] text-slate-500 uppercase font-mono">KM ${l.km}</p>${e}</div></div>`;
+                h.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center mb-2"><div><p class="text-[8px] text-slate-500 font-black">${l.data}</p><p class="text-lg font-black">R$ ${l.valor.toFixed(2)}</p></div><div class="text-right"><p class="text-[8px] text-slate-500">KM ${l.km}</p>${e}</div></div>`;
             });
         }
 
-        function limparCamposDashboard() {
-            ['vCarro', 'vEntrada', 'faturamento', 'parcela', 'energiaManual', 'segManut', 'kmMensal'].forEach(i => document.getElementById(i).value = "");
-            calcular();
+        function exportarDados() {
+            const b = { config: JSON.parse(localStorage.getItem('byd_simulador_save')), logs: logs };
+            const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(b));
+            const a = document.createElement('a'); a.href = d; a.download = "backup_byd.json"; a.click();
         }
 
-        function limparLogs() {
-            if(confirm("Zerar histórico?")){ localStorage.removeItem('byd_logs'); logs = []; renderLogs(); calcular(); }
+        function importarDados(e) {
+            const reader = new FileReader();
+            reader.onload = (ex) => {
+                const b = JSON.parse(ex.target.result);
+                localStorage.setItem('byd_simulador_save', JSON.stringify(b.config));
+                localStorage.setItem('byd_logs', JSON.stringify(b.logs));
+                location.reload();
+            };
+            reader.readAsText(e.target.files[0]);
         }
 
-        calcular();
+        function limparCamposDashboard() { if(confirm("Resetar Simulação?")){ localStorage.removeItem('byd_simulador_save'); location.reload(); } }
+        function limparLogs() { if(confirm("Apagar Histórico?")){ localStorage.removeItem('byd_logs'); logs=[]; renderLogs(); calcular(); } }
+
+        carregarDados();
     </script>
 </body>
 </html>
