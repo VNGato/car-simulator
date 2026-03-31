@@ -84,9 +84,13 @@
                     <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl">
                         <h3 class="text-[10px] font-black text-slate-600 uppercase mb-6 italic">Custos Variáveis</h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-                            <label class="block text-[10px] text-slate-500 uppercase font-bold italic">Energia/Fuel
-                                <input type="text" id="energiaManual" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded p-2 mt-1 text-blue-400 font-bold border border-slate-700">
-                            </label>
+                            <div>
+                                <label class="block text-[10px] text-slate-500 uppercase font-bold italic flex justify-between">
+                                    <span>Energia/Fuel</span>
+                                    <span id="logIndicator" class="hidden text-blue-400 text-[8px]">AutoLog</span>
+                                </label>
+                                <input type="text" id="energiaManual" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded p-2 mt-1 text-blue-400 font-bold border border-slate-700 transition-all">
+                            </div>
                             <label class="block text-[10px] text-slate-500 uppercase font-bold italic">Seguro/Manut
                                 <input type="text" id="segManut" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded p-2 mt-1 text-white font-bold border border-slate-700">
                             </label>
@@ -161,6 +165,8 @@
             return parseFloat(valorStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0;
         }
 
+        const fmt = (v) => v.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
         function calcular() {
             const campos = ['vCarro', 'vEntrada', 'faturamento', 'parcela', 'energiaManual', 'segManut', 'kmMensal', 'modeloByd'];
             const save = {};
@@ -177,18 +183,32 @@
                 if(dK > 0){ mediaLog += (logs[i].valor / dK); conta++; }
             }
             const cpkLog = conta > 0 ? (mediaLog / conta) : null;
-            const cEnergia = cpkLog ? (cpkLog * kmM) : formatToFloat(save.energiaManual);
+            let cEnergia = 0;
+            const logInd = document.getElementById('logIndicator');
+            const eInput = document.getElementById('energiaManual');
+
+            if(cpkLog) {
+                cEnergia = cpkLog * kmM;
+                logInd.classList.remove('hidden');
+                if(document.activeElement !== eInput) {
+                    eInput.value = "R$ " + fmt(cEnergia);
+                    eInput.classList.add('bg-blue-900/10');
+                }
+            } else {
+                cEnergia = formatToFloat(save.energiaManual);
+                logInd.classList.add('hidden');
+                eInput.classList.remove('bg-blue-900/10');
+            }
             
             const depM = (vC * depA) / 12;
             const caixa = fat - par - seg - cEnergia;
             const real = caixa - depM;
-            const cpkT = (par + seg + cEnergia + depM) / kmM;
+            const cpkT = (par + seg + cEnergia + depM) / (kmM || 1);
 
-            const fmt = (v) => v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
             document.getElementById('resFinanciado').innerText = `R$ ${fmt(vC - vE)}`;
             document.getElementById('resCaixa').innerText = `R$ ${fmt(caixa)}`;
             document.getElementById('resReal').innerText = `R$ ${fmt(real)}`;
-            document.getElementById('resCPK').innerText = `R$ ${cpkT.toFixed(2)}`;
+            document.getElementById('resCPK').innerText = `R$ ${fmt(cpkT)}`;
 
             const tag = document.getElementById('statusTag');
             if(real > 3000){ tag.className="px-5 py-2 rounded-lg font-black text-[9px] bg-green-500 text-green-950"; tag.innerText="ALTA PERFORMANCE"; }
