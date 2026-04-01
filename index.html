@@ -109,6 +109,11 @@
                                 <span id="resFinanciado"
                                     class="text-xs font-mono font-bold text-slate-300 tracking-tighter">R$ 0,00</span>
                             </div>
+
+                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Parcela Mensal (R$)
+                                <input type="text" id="parcela" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
+                                    class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
+                            </label>
                         </div>
                     </section>
 
@@ -146,10 +151,6 @@
                                     Média Necessária: R$ 0,00/dia</div>
                             </div>
 
-                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Parcela (R$)
-                                <input type="text" id="parcela" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
-                                    class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
-                            </label>
                             <button onclick="limparCamposDashboard()"
                                 class="w-full py-2 text-[8px] font-black uppercase text-slate-600 border border-slate-800 rounded mt-2 hover:bg-slate-800 transition-all italic">↻
                                 Resetar Simulação</button>
