@@ -50,9 +50,26 @@
                     <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg">
                         <h2 class="text-slate-500 font-black text-[10px] mb-4 uppercase tracking-widest italic">📈 Operação Mensal</h2>
                         <div class="space-y-3">
-                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Faturamento (R$)
+                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Meta Mensal (R$)
                                 <input type="text" id="faturamento" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-3 mt-1 outline-none text-green-400 font-black text-xl">
                             </label>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="block text-[10px] text-slate-400 uppercase font-bold">Acumulado (Anterior)
+                                    <input type="text" id="fatAcumulado" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-2 mt-1 outline-none text-white font-bold border border-slate-700">
+                                </label>
+                                <label class="block text-[10px] text-green-500 uppercase font-bold italic">Faturamento de Hoje
+                                    <input type="text" id="fatHoje" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-2 mt-1 outline-none text-green-300 font-black border border-green-900/30">
+                                </label>
+                            </div>
+                            <button onclick="salvarGanho()" class="w-full py-2 bg-green-600/20 hover:bg-green-600/40 text-green-400 text-[10px] font-black uppercase rounded-lg border border-green-600/20 transition-all italic">✓ Salvar Ganho de Hoje no Acumulado</button>
+
+                            <div id="statusMeta" class="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center relative overflow-hidden">
+                                <div class="text-[8px] text-slate-600 font-black uppercase mb-1">Status da Meta</div>
+                                <div id="resFaltaMeta" class="text-xl font-black text-blue-400 uppercase">Faltam R$ 0,00</div>
+                                <div id="resDiaria" class="text-[8px] text-slate-500 mt-1 uppercase font-bold italic">Média Necessária: R$ 0,00/dia</div>
+                            </div>
+
                             <label class="block text-[10px] text-slate-400 uppercase font-bold">Parcela (R$)
                                 <input type="text" id="parcela" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
                             </label>
@@ -69,13 +86,13 @@
 
                 <div class="lg:col-span-2 space-y-6">
                     <div class="grid md:grid-cols-2 gap-4">
-                        <div class="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 shadow-2xl relative">
-                            <span class="absolute top-4 right-6 text-slate-800 font-black text-2xl italic">HOJE</span>
+                        <div id="cardCaixa" class="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 shadow-2xl relative transition-all duration-500">
+                            <span id="statusCaixa" class="absolute top-4 right-6 text-slate-800 font-black text-[10px] italic bg-slate-800/50 px-2 py-1 rounded">PROJETADO</span>
                             <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso (Caixa)</h2>
                             <div id="resCaixa" class="text-4xl md:text-5xl font-black text-white">R$ 0,00</div>
                         </div>
-                        <div class="bg-gradient-to-br from-green-950/20 to-slate-950 p-8 rounded-3xl border border-green-900/30 shadow-2xl relative">
-                            <span class="absolute top-4 right-6 text-green-900/20 font-black text-2xl italic">LUCRO</span>
+                        <div id="cardReal" class="bg-gradient-to-br from-green-950/10 to-slate-950 p-8 rounded-3xl border border-green-900/20 shadow-2xl relative transition-all duration-500">
+                            <span id="statusReal" class="absolute top-4 right-6 text-green-900/20 font-black text-[10px] italic bg-green-900/10 px-2 py-1 rounded">PROJETADO</span>
                             <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Real (Patrimonial)</h2>
                             <div id="resReal" class="text-4xl md:text-5xl font-black text-green-400">R$ 0,00</div>
                         </div>
@@ -103,7 +120,21 @@
                                 <span class="text-[10px] text-slate-500 uppercase font-bold italic">Custo por KM</span>
                                 <div id="resCPK" class="text-2xl font-black text-white font-mono">R$ 0,00</div>
                             </div>
-                            <div id="statusTag" class="px-5 py-2 rounded-lg font-black text-[9px] uppercase">CALCULANDO...</div>
+                            <div id="statusTag" class="px-5 py-2 rounded-lg font-black text-[9px] uppercase transition-all shadow-lg shadow-green-500/10">CALCULANDO...</div>
+                        </div>
+                    </div>
+
+                    <!-- Novo: Extrato de Ganhos Mensal -->
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-[10px] font-black text-slate-500 uppercase italic flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                Extrato de Faturamento Diário
+                            </h3>
+                            <button onclick="limparGanhos()" class="text-[8px] font-black text-red-500/50 hover:text-red-500 uppercase italic">Rezetar Mês</button>
+                        </div>
+                        <div id="listaGanhos" class="grid grid-cols-2 lg:grid-cols-4 gap-3 overflow-y-auto pr-2" style="max-height: 400px; min-height: 250px;">
+                            <!-- Ganhos inseridos via JS -->
                         </div>
                     </div>
                 </div>
@@ -137,6 +168,7 @@
 
     <script>
         let logs = JSON.parse(localStorage.getItem('byd_logs')) || [];
+        let logsGanhos = JSON.parse(localStorage.getItem('byd_logs_ganhos')) || [];
 
         function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -168,47 +200,87 @@
         const fmt = (v) => v.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         function calcular() {
-            const campos = ['vCarro', 'vEntrada', 'faturamento', 'parcela', 'energiaManual', 'segManut', 'kmMensal', 'modeloByd'];
+            const campos = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'segManut', 'kmMensal', 'modeloByd'];
             const save = {};
             campos.forEach(id => save[id] = document.getElementById(id).value);
             localStorage.setItem('byd_simulador_save', JSON.stringify(save));
 
             const vC = formatToFloat(save.vCarro), vE = formatToFloat(save.vEntrada), fat = formatToFloat(save.faturamento);
+            const fatAcum = formatToFloat(save.fatAcumulado), fatHoje = formatToFloat(save.fatHoje);
             const par = formatToFloat(save.parcela), seg = formatToFloat(save.segManut), kmM = parseFloat(save.kmMensal) || 1;
             const depA = parseFloat(save.modeloByd);
 
-            let mediaLog = 0, conta = 0;
-            for(let i=0; i<Math.min(logs.length-1, 5); i++){
-                const dK = logs[i].km - logs[i+1].km;
-                if(dK > 0){ mediaLog += (logs[i].valor / dK); conta++; }
-            }
-            const cpkLog = conta > 0 ? (mediaLog / conta) : null;
-            let cEnergia = 0;
+            // Lógica de Gasto de Energia (Combustível) Reais do Mês
+            let cEnergiaReal = 0;
+            logs.forEach(l => cEnergiaReal += l.valor);
+            
             const logInd = document.getElementById('logIndicator');
             const eInput = document.getElementById('energiaManual');
 
-            if(cpkLog) {
-                cEnergia = cpkLog * kmM;
-                logInd.classList.remove('hidden');
+            let cEnergiaFinal = 0;
+            if(logs.length > 0) {
+                cEnergiaFinal = cEnergiaReal;
+                logInd.innerText = "GASTO REAL";
+                logInd.classList.remove('hidden', 'text-blue-400');
+                logInd.classList.add('text-green-500');
                 if(document.activeElement !== eInput) {
-                    eInput.value = "R$ " + fmt(cEnergia);
-                    eInput.classList.add('bg-blue-900/10');
+                    eInput.value = "R$ " + fmt(cEnergiaFinal);
+                    eInput.classList.add('bg-green-900/10', 'border-green-900/30');
+                    eInput.classList.remove('bg-blue-900/10', 'border-slate-700');
                 }
             } else {
-                cEnergia = formatToFloat(save.energiaManual);
-                logInd.classList.add('hidden');
-                eInput.classList.remove('bg-blue-900/10');
+                cEnergiaFinal = formatToFloat(save.energiaManual);
+                logInd.innerText = "LANÇAR CARGA";
+                logInd.classList.remove('hidden', 'text-green-500');
+                logInd.classList.add('text-red-500', 'animate-pulse');
+                eInput.classList.remove('bg-green-900/10', 'bg-blue-900/10', 'border-green-900/30');
+                eInput.classList.add('border-slate-700');
             }
             
+            // Lógica de Faturamento: Projetado até superar a Meta
+            const ganhoTotalReal = fatAcum + fatHoje;
+            const superouMeta = ganhoTotalReal > fat;
+            const faturamentoFinal = superouMeta ? ganhoTotalReal : fat;
+
             const depM = (vC * depA) / 12;
-            const caixa = fat - par - seg - cEnergia;
+            const caixa = faturamentoFinal - par - seg - cEnergiaFinal;
             const real = caixa - depM;
-            const cpkT = (par + seg + cEnergia + depM) / (kmM || 1);
+            const cpkT = (par + seg + cEnergiaFinal + depM) / (kmM || 1);
 
             document.getElementById('resFinanciado').innerText = `R$ ${fmt(vC - vE)}`;
             document.getElementById('resCaixa').innerText = `R$ ${fmt(caixa)}`;
             document.getElementById('resReal').innerText = `R$ ${fmt(real)}`;
             document.getElementById('resCPK').innerText = `R$ ${fmt(cpkT)}`;
+
+            // Atualizar Tags de Modo (Real vs Projetado)
+            const sC = document.getElementById('statusCaixa'), sR = document.getElementById('statusReal');
+            const cC = document.getElementById('cardCaixa'), cR = document.getElementById('cardReal');
+            
+            if(superouMeta) {
+                sC.innerText = "REAL (META SUPERADA)"; sR.innerText = "REAL (META SUPERADA)";
+                sC.className = "absolute top-4 right-6 text-green-400 font-black text-[8px] italic bg-green-500/10 px-2 py-1 rounded border border-green-500/20 shadow-lg shadow-green-500/20";
+                sR.className = "absolute top-4 right-6 text-green-400 font-black text-[8px] italic bg-green-500/10 px-2 py-1 rounded border border-green-500/20 shadow-lg shadow-green-500/20";
+                cC.classList.add('border-green-500/30'); cR.classList.add('border-green-500/50', 'bg-green-950/20');
+            } else {
+                const modoTxt = ganhoTotalReal > 0 ? "PROJETADO (EM ANDAMENTO)" : "SIMULAÇÃO (META)";
+                sC.innerText = modoTxt; sR.innerText = modoTxt;
+                sC.className = "absolute top-4 right-6 text-slate-500 font-black text-[8px] italic bg-slate-800/50 px-2 py-1 rounded";
+                sR.className = "absolute top-4 right-6 text-slate-500 font-black text-[8px] italic bg-slate-800/50 px-2 py-1 rounded";
+                cC.classList.remove('border-green-500/30'); cR.classList.remove('border-green-500/50', 'bg-green-950/20');
+            }
+
+            // Meta e Renda Diária
+            const rMeta = document.getElementById('resFaltaMeta');
+            const falta = fat - fatAcum - fatHoje;
+            
+            if(falta > 0) {
+                rMeta.innerText = `Faltam R$ ${fmt(falta)}`;
+                rMeta.className = "text-xl font-black text-blue-400 uppercase";
+            } else {
+                rMeta.innerText = "Meta Mensal Atingida!";
+                rMeta.className = "text-xl font-black text-green-500 uppercase";
+            }
+            document.getElementById('resDiaria').innerText = `Média Necessária: R$ ${fmt(fat/30)}/dia`;
 
             const tag = document.getElementById('statusTag');
             if(real > 3000){ tag.className="px-5 py-2 rounded-lg font-black text-[9px] bg-green-500 text-green-950"; tag.innerText="ALTA PERFORMANCE"; }
@@ -234,6 +306,44 @@
             renderLogs(); calcular();
         }
 
+        function salvarGanho() {
+            const h = document.getElementById('fatHoje');
+            const a = document.getElementById('fatAcumulado');
+            const vH = formatToFloat(h.value);
+            const vA = formatToFloat(a.value);
+            
+            if(vH <= 0) return alert("Insira o valor ganho hoje");
+            
+            const novoTotal = vA + vH;
+            a.value = "R$ " + fmt(novoTotal);
+            h.value = "";
+            
+            // Adicionar ao log de ganhos
+            logsGanhos.unshift({ data: new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}), valor: vH });
+            localStorage.setItem('byd_logs_ganhos', JSON.stringify(logsGanhos));
+            
+            renderGanhos();
+            calcular();
+            alert("✓ Ganho de R$ " + fmt(vH) + " salvo com sucesso!");
+        }
+
+        function renderGanhos() {
+            const container = document.getElementById('listaGanhos');
+            container.innerHTML = "";
+            if(logsGanhos.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-4 text-center text-[10px] text-slate-700 italic uppercase">Nenhum ganho registrado neste mês</div>`;
+                return;
+            }
+            logsGanhos.forEach(g => {
+                container.innerHTML += `
+                    <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex flex-col justify-center items-center shadow-inner">
+                        <span class="text-[7px] text-slate-600 font-bold">${g.data}</span>
+                        <span class="text-xs font-black text-green-500 italic">R$ ${fmt(g.valor)}</span>
+                    </div>
+                `;
+            });
+        }
+
         function renderLogs() {
             const h = document.getElementById('historicoLogs'); h.innerHTML = "";
             logs.forEach((l, i) => {
@@ -243,7 +353,11 @@
         }
 
         function exportarDados() {
-            const b = { config: JSON.parse(localStorage.getItem('byd_simulador_save')), logs: logs };
+            const b = { 
+                config: JSON.parse(localStorage.getItem('byd_simulador_save')), 
+                logs: logs,
+                ganhos: logsGanhos 
+            };
             const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(b));
             const a = document.createElement('a'); a.href = d; a.download = "backup_byd.json"; a.click();
         }
@@ -254,15 +368,18 @@
                 const b = JSON.parse(ex.target.result);
                 localStorage.setItem('byd_simulador_save', JSON.stringify(b.config));
                 localStorage.setItem('byd_logs', JSON.stringify(b.logs));
+                localStorage.setItem('byd_logs_ganhos', JSON.stringify(b.ganhos || []));
                 location.reload();
             };
             reader.readAsText(e.target.files[0]);
         }
 
-        function limparCamposDashboard() { if(confirm("Resetar Simulação?")){ localStorage.removeItem('byd_simulador_save'); location.reload(); } }
-        function limparLogs() { if(confirm("Apagar Histórico?")){ localStorage.removeItem('byd_logs'); logs=[]; renderLogs(); calcular(); } }
+        function limparCamposDashboard() { if(confirm("Resetar TODA a Simulação e Metas?")){ localStorage.removeItem('byd_simulador_save'); localStorage.removeItem('byd_logs_ganhos'); location.reload(); } }
+        function limparLogs() { if(confirm("Apagar Histórico de Cargas?")){ localStorage.removeItem('byd_logs'); logs=[]; renderLogs(); calcular(); } }
+        function limparGanhos() { if(confirm("Apagar Histórico de Ganhos?")){ localStorage.removeItem('byd_logs_ganhos'); logsGanhos=[]; renderGanhos(); calcular(); } }
 
         carregarDados();
+        renderGanhos();
     </script>
 </body>
 </html>
