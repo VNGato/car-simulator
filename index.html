@@ -95,25 +95,40 @@
 
                             <div class="h-px bg-slate-800 my-2"></div>
 
+                            <div id="statusCapital" class="hidden flex items-center justify-center p-2 bg-green-500/10 border border-green-500/20 rounded-lg mb-2">
+                                <span class="text-[9px] text-green-400 font-black uppercase italic tracking-widest">✓ Propriedade Integral / Quitado</span>
+                            </div>
+
                             <label class="block text-[10px] text-slate-500 uppercase font-bold">Valor do Carro (R$)
                                 <input type="text" id="vCarro" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
                                     class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
                             </label>
-                            <label class="block text-[10px] text-slate-500 uppercase font-bold">Entrada (R$)
-                                <input type="text" id="vEntrada" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
-                                    class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-blue-400 font-bold border border-slate-700">
-                            </label>
-                            <div
-                                class="p-3 bg-slate-950 rounded-lg border border-slate-800 flex justify-between items-center">
-                                <span class="text-[9px] text-slate-500 uppercase font-bold italic">Financiado:</span>
-                                <span id="resFinanciado"
-                                    class="text-xs font-mono font-bold text-slate-300 tracking-tighter">R$ 0,00</span>
-                            </div>
 
-                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Parcela Mensal (R$)
-                                <input type="text" id="parcela" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
-                                    class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
+                            <label class="block text-[10px] text-slate-400 uppercase font-bold">Situação do Veículo
+                                <select id="situacaoVeiculo" onchange="calcular()"
+                                    class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white text-xs font-bold outline-none mt-1 shadow-inner focus:border-blue-500/50 transition-all">
+                                    <option value="quitado">Propriedade Integral (Quitado)</option>
+                                    <option value="parcelado">Financiado (Em Parcelas)</option>
+                                </select>
                             </label>
+
+                            <div id="secaoDivida" class="space-y-3 transition-all duration-500">
+                                <label class="block text-[10px] text-slate-500 uppercase font-bold">Entrada (R$)
+                                    <input type="text" id="vEntrada" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
+                                        class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-blue-400 font-bold border border-slate-700">
+                                </label>
+                                <div
+                                    class="p-3 bg-slate-950 rounded-lg border border-slate-800 flex justify-between items-center">
+                                    <span class="text-[9px] text-slate-500 uppercase font-bold italic">Financiado:</span>
+                                    <span id="resFinanciado"
+                                        class="text-xs font-mono font-bold text-slate-300 tracking-tighter">R$ 0,00</span>
+                                </div>
+
+                                <label class="block text-[10px] text-slate-400 uppercase font-bold">Parcela Mensal (R$)
+                                    <input type="text" id="parcela" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
+                                        class="w-full bg-slate-800 rounded-lg p-2.5 mt-1 outline-none text-white font-bold border border-slate-700">
+                                </label>
+                            </div>
                         </div>
                     </section>
 
@@ -159,25 +174,61 @@
                 </div>
 
                 <div class="lg:col-span-2 flex flex-col space-y-6">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div id="cardCaixa"
-                            class="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 shadow-2xl relative transition-all duration-500">
-                            <span id="statusCaixa"
-                                class="absolute top-4 right-6 text-slate-800 font-black text-[10px] italic bg-slate-800/50 px-2 py-1 rounded">PROJETADO</span>
-                            <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso (Caixa)
-                            </h2>
-                            <div id="resCaixa" class="text-4xl md:text-5xl font-black text-white">R$ 0,00</div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Card 1: Faturamento Bruto (Entrada) + Hover Detalhes -->
+                        <div id="cardFatTotal"
+                            class="group relative bg-gradient-to-br from-indigo-950/20 to-slate-950 p-6 rounded-3xl border border-indigo-900/10 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
+                            <span class="self-start text-indigo-400 font-black text-[8px] italic bg-indigo-500/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Faturamento</span>
+                            <h2 class="text-indigo-500/60 text-[10px] font-black uppercase mb-1">Total Gerado</h2>
+                            <div id="resFaturamentoCard" class="text-2xl md:text-3xl font-black text-indigo-300 transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                            
+                            <!-- Novo Hover Detail: Visual de Vidro -->
+                            <div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-indigo-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                                <div class="text-[8px] text-indigo-300 uppercase font-black mb-2 tracking-tighter">Deduções Operacionais</div>
+                                <div id="detEnergia" class="text-xs text-white font-black italic drop-shadow-lg">Energia: R$ 0,00</div>
+                                <div id="detSeguro" class="text-xs text-indigo-200 font-black italic drop-shadow-lg">Seguro: R$ 0,00</div>
+                            </div>
                         </div>
+
+                        <!-- Card 2: Lucro Operacional (Trabalho) + Hover Parcela -->
+                        <div id="cardOperacional"
+                            class="group relative bg-gradient-to-br from-blue-950/10 to-slate-950 p-6 rounded-3xl border border-blue-900/10 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
+                            <span id="statusOperacional"
+                                class="self-start text-blue-900/40 font-black text-[8px] italic bg-blue-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Operação</span>
+                            <h2 class="text-blue-400 text-[10px] font-black uppercase mb-1">Ganho de Trabalho</h2>
+                            <div id="resOperacional" class="text-2xl md:text-3xl font-black text-blue-300 italic transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+
+                            <!-- Novo Hover Detail: Visual de Vidro -->
+                            <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-blue-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                                <div class="text-[8px] text-blue-300 uppercase font-black mb-2 tracking-tighter">Custo de Capital</div>
+                                <div id="detParcela" class="text-xs text-white font-black italic drop-shadow-lg scale-110">Parcela: R$ 0,00</div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Caixa (Money in Hand) + Hover Depreciação -->
+                        <div id="cardCaixa"
+                            class="group relative bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
+                            <span id="statusCaixa"
+                                class="self-start text-slate-800 font-black text-[8px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Caixa</span>
+                            <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso</h2>
+                            <div id="resCaixa" class="text-2xl md:text-3xl font-black text-white transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+
+                            <!-- Novo Hover Detail: Visual de Vidro -->
+                            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-slate-700/50 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                                <div class="text-[8px] text-slate-400 uppercase font-black mb-2 tracking-tighter">Perda Patrimonial</div>
+                                <div id="detDepreciacao" class="text-xs text-red-500 font-black italic drop-shadow-lg scale-110">Desvalorização: R$ 0,00</div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: Lucro Real (Patrimonial) -->
                         <div id="cardReal"
-                            class="bg-gradient-to-br from-green-950/10 to-slate-950 p-8 rounded-3xl border border-green-900/20 shadow-2xl relative transition-all duration-500">
+                            class="group bg-gradient-to-br from-green-950/10 to-slate-950 p-6 rounded-3xl border border-green-900/20 shadow-2xl transition-all duration-500 flex flex-col overflow-hidden">
                             <span id="statusReal"
-                                class="absolute top-4 right-6 text-green-900/20 font-black text-[10px] italic bg-green-900/10 px-2 py-1 rounded">PROJETADO</span>
-                            <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Real (Patrimonial)
-                            </h2>
-                            <div id="resReal" class="text-4xl md:text-5xl font-black text-green-400">R$ 0,00</div>
+                                class="self-start text-green-900/20 font-black text-[8px] italic bg-green-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Real</span>
+                            <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Patrimonial Final</h2>
+                            <div id="resReal" class="text-2xl md:text-3xl font-black text-green-400 transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
                         </div>
                     </div>
-
                     <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl">
                         <h3 class="text-[10px] font-black text-slate-600 uppercase mb-6 italic">Custos Variáveis</h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
@@ -313,7 +364,9 @@
 
             const vC = formatToFloat(save.vCarro), vE = formatToFloat(save.vEntrada), fat = formatToFloat(save.faturamento);
             const fatAcum = formatToFloat(save.fatAcumulado), fatHoje = formatToFloat(save.fatHoje);
-            const par = formatToFloat(save.parcela), seg = formatToFloat(save.segManut), kmM = parseFloat(save.kmMensal) || 1;
+            const situacao = document.getElementById('situacaoVeiculo').value;
+            const par = (situacao === 'quitado') ? 0 : formatToFloat(save.parcela);
+            const seg = formatToFloat(save.segManut), kmM = parseFloat(save.kmM) || 1;
             const depA = parseFloat(save.modeloByd);
 
             // Lógica de Gasto de Energia (Combustível) Reais do Mês
@@ -349,11 +402,32 @@
             const faturamentoFinal = superouMeta ? ganhoTotalReal : fat;
 
             const depM = (vC * depA) / 12;
-            const caixa = faturamentoFinal - par - seg - cEnergiaFinal;
+            const operacional = faturamentoFinal - seg - cEnergiaFinal;
+            
+            const caixa = operacional - par;
             const real = caixa - depM;
-            const cpkT = (par + seg + cEnergiaFinal + depM) / (kmM || 1);
+            const cpkT = (par + seg + cEnergiaFinal + depM) / (parseFloat(save.kmMensal) || 1);
 
             document.getElementById('resFinanciado').innerText = `R$ ${fmt(vC - vE)}`;
+
+            // Inteligência: Modo Visibilidade (Quitado vs Parcelado)
+            const secaoDivida = document.getElementById('secaoDivida');
+            const statusCapital = document.getElementById('statusCapital');
+            
+            if (situacao === 'quitado') {
+                secaoDivida.style.display = 'none';
+                statusCapital.style.display = 'flex';
+            } else {
+                secaoDivida.style.display = 'block';
+                statusCapital.style.display = 'none';
+            }
+
+            document.getElementById('resFaturamentoCard').innerText = `R$ ${fmt(faturamentoFinal)}`;
+            document.getElementById('detEnergia').innerText = `Energia: R$ ${fmt(cEnergiaFinal)}`;
+            document.getElementById('detSeguro').innerText = `Seguro: R$ ${fmt(seg)}`;
+            document.getElementById('detParcela').innerText = `Parcela: R$ ${fmt(par)}`;
+            document.getElementById('detDepreciacao').innerText = `Desvalorização: R$ ${fmt(depM)}`;
+            document.getElementById('resOperacional').innerText = `R$ ${fmt(operacional)}`;
             document.getElementById('resCaixa').innerText = `R$ ${fmt(caixa)}`;
             document.getElementById('resReal').innerText = `R$ ${fmt(real)}`;
             document.getElementById('resCPK').innerText = `R$ ${fmt(cpkT)}`;
@@ -361,17 +435,20 @@
             // Atualizar Tags de Modo (Real vs Projetado)
             const sC = document.getElementById('statusCaixa'), sR = document.getElementById('statusReal');
             const cC = document.getElementById('cardCaixa'), cR = document.getElementById('cardReal');
+            const sO = document.getElementById('statusOperacional');
 
             if (superouMeta) {
-                sC.innerText = "REAL (META SUPERADA)"; sR.innerText = "REAL (META SUPERADA)";
-                sC.className = "absolute top-4 right-6 text-green-400 font-black text-[8px] italic bg-green-500/10 px-2 py-1 rounded border border-green-500/20 shadow-lg shadow-green-500/20";
-                sR.className = "absolute top-4 right-6 text-green-400 font-black text-[8px] italic bg-green-500/10 px-2 py-1 rounded border border-green-500/20 shadow-lg shadow-green-500/20";
+                sC.innerText = "REAL"; sR.innerText = "REAL"; sO.innerText = "REAL";
+                sC.className = "self-start text-green-400 font-black text-[7px] italic bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20 shadow-lg shadow-green-500/20 mb-2 uppercase";
+                sR.className = "self-start text-green-400 font-black text-[7px] italic bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20 shadow-lg shadow-green-500/20 mb-2 uppercase";
+                sO.className = "self-start text-green-400 font-black text-[7px] italic bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20 mb-2 uppercase";
                 cC.classList.add('border-green-500/30'); cR.classList.add('border-green-500/50', 'bg-green-950/20');
             } else {
-                const modoTxt = ganhoTotalReal > 0 ? "PROJETADO (EM ANDAMENTO)" : "SIMULAÇÃO (META)";
-                sC.innerText = modoTxt; sR.innerText = modoTxt;
-                sC.className = "absolute top-4 right-6 text-slate-500 font-black text-[8px] italic bg-slate-800/50 px-2 py-1 rounded";
-                sR.className = "absolute top-4 right-6 text-slate-500 font-black text-[8px] italic bg-slate-800/50 px-2 py-1 rounded";
+                const modoTxt = ganhoTotalReal > 0 ? "PROJETADO" : "META";
+                sC.innerText = modoTxt; sR.innerText = modoTxt; sO.innerText = "OPERACIONAL";
+                sC.className = "self-start text-slate-500 font-black text-[7px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-2 uppercase";
+                sR.className = "self-start text-slate-500 font-black text-[7px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-2 uppercase";
+                sO.className = "self-start text-blue-900/40 font-black text-[7px] italic bg-blue-900/10 px-2 py-0.5 rounded mb-2 uppercase";
                 cC.classList.remove('border-green-500/30'); cR.classList.remove('border-green-500/50', 'bg-green-950/20');
             }
 
