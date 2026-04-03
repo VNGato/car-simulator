@@ -366,7 +366,7 @@
             const fatAcum = formatToFloat(save.fatAcumulado), fatHoje = formatToFloat(save.fatHoje);
             const situacao = document.getElementById('situacaoVeiculo').value;
             const par = (situacao === 'quitado') ? 0 : formatToFloat(save.parcela);
-            const seg = formatToFloat(save.segManut), kmM = parseFloat(save.kmM) || 1;
+            const seg = formatToFloat(save.segManut), kmM = parseFloat(save.kmMensal) || 0;
             const depA = parseFloat(save.modeloByd);
 
             // Lógica de Gasto de Energia (Combustível) Reais do Mês
@@ -406,7 +406,7 @@
             
             const caixa = operacional - par;
             const real = caixa - depM;
-            const cpkT = (par + seg + cEnergiaFinal + depM) / (parseFloat(save.kmMensal) || 1);
+            const cpkT = (kmM > 0) ? (par + seg + cEnergiaFinal + depM) / kmM : 0;
 
             document.getElementById('resFinanciado').innerText = `R$ ${fmt(vC - vE)}`;
 
@@ -452,18 +452,29 @@
                 cC.classList.remove('border-green-500/30'); cR.classList.remove('border-green-500/50', 'bg-green-950/20');
             }
 
-            // Meta e Renda Diária
-            const rMeta = document.getElementById('resFaltaMeta');
-            const falta = fat - fatAcum - fatHoje;
+            // Atualizar Meta e Status Visual
+            const resMeta = document.getElementById('resFaltaMeta'), resDiaria = document.getElementById('resDiaria');
+            const divMeta = document.getElementById('statusMeta');
 
-            if (falta > 0) {
-                rMeta.innerText = `Faltam R$ ${fmt(falta)}`;
-                rMeta.className = "text-xl font-black text-blue-400 uppercase";
+            if (ganhoTotalReal === 0 && fat === 0) {
+                resMeta.innerText = "AGUARDANDO DADOS";
+                resMeta.className = "text-xl font-black text-slate-600 uppercase";
+                resDiaria.innerText = "INSIRA SUA META OU GANHO";
+                divMeta.className = "p-4 bg-slate-950 rounded-2xl border border-slate-900 text-center relative overflow-hidden flex-1 flex flex-col justify-center";
+            } else if (superouMeta) {
+                resMeta.innerText = "META MENSAL ATINGIDA!";
+                resMeta.className = "text-xl font-black text-green-400 uppercase";
+                resDiaria.innerText = `EXCESSO: R$ ${fmt(ganhoTotalReal - fat)}`;
+                divMeta.className = "p-4 bg-green-950/20 rounded-2xl border border-green-500/30 text-center relative overflow-hidden flex-1 flex flex-col justify-center animate-pulse";
             } else {
-                rMeta.innerText = "Meta Mensal Atingida!";
-                rMeta.className = "text-xl font-black text-green-500 uppercase";
+                const falta = fat - ganhoTotalReal;
+                const diasRestantes = 30 - new Date().getDate() + 1;
+                const diaria = falta / (diasRestantes > 0 ? diasRestantes : 1);
+                resMeta.innerText = `FALTAM R$ ${fmt(falta)}`;
+                resMeta.className = "text-xl font-black text-blue-400 uppercase";
+                resDiaria.innerText = `Média Necessária: R$ ${fmt(diaria)}/dia`;
+                divMeta.className = "p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center relative overflow-hidden flex-1 flex flex-col justify-center";
             }
-            document.getElementById('resDiaria').innerText = `Média Necessária: R$ ${fmt(fat / 30)}/dia`;
 
             const tag = document.getElementById('statusTag');
             if (real > 3000) { tag.className = "px-5 py-2 rounded-lg font-black text-[9px] bg-green-500 text-green-950"; tag.innerText = "ALTA PERFORMANCE"; }
