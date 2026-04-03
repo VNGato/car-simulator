@@ -525,57 +525,60 @@
             const btn = document.getElementById('btnFipe');
             const modSel = document.getElementById('modeloByd');
             const modelText = modSel.options[modSel.selectedIndex].text.split('(')[0].trim();
-            const ano = document.getElementById('anoModelo').value;
+            const anoSel = document.getElementById('anoModelo');
+            const anoText = anoSel.options[anoSel.selectedIndex].text.split('(')[0].trim();
             
+            // Mapeamento de IDs FIPE para Modelos BYD (Marca 238)
+            const fipeModels = {
+                "Dolphin Mini": 10986,
+                "Dolphin GS": 10813,
+                "Dolphin Plus": 10878,
+                "Yuan Pro": 11199,
+                "Yuan Plus": 10184,
+                "Song Plus": 11084,
+                "King": 11079,
+                "Seal": 10833,
+                "Han": 9860,
+                "Tan": 9775
+            };
+
+            const modelId = fipeModels[modelText];
+            if (!modelId) return alert("Modelo não mapeado para consulta FIPE automática.");
+
+            // Identificar sufixo de combustível (-4 Elétrico, -6 Híbrido)
+            const isHybrid = modelText.includes("Song") || modelText.includes("King");
+            const suffix = isHybrid ? "6" : "4";
+            
+            // Determinar o código do ano
+            let yearCode = "";
+            if (anoText === "Zero KM") yearCode = `32000-${suffix}`;
+            else if (anoText === "2026") yearCode = `2026-${suffix}`;
+            else if (anoText === "2025") yearCode = `2025-${suffix}`;
+            else if (anoText === "2024") yearCode = `2024-${suffix}`;
+            else if (anoText === "2023") yearCode = `2023-${suffix}`;
+            else yearCode = `${anoText}-${suffix}`;
+
             btn.innerText = "⏳ Consultando Fipe...";
             btn.disabled = true;
 
             try {
-                // BYD Brand ID = 238 (na API parallelum v1)
-                const resMod = await fetch(`https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos`);
-                const dataMod = await resMod.json();
+                const url = `https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos/${modelId}/anos/${yearCode}`;
+                const response = await fetch(url);
                 
-                // Melhoria no match: procura por termos-chave (Dolphin, Yuan, etc)
-                const searchTerms = modelText.toLowerCase().split(' ');
-                const match = dataMod.modelos.find(m => {
-                    const nome = m.nome.toLowerCase();
-                    if(modelText.includes("Dolphin GS")) return nome.includes("dolphin ev");
-                    return searchTerms.every(term => nome.includes(term));
-                });
-                
-                if(!match) throw new Error(`Modelo '${modelText}' não encontrado na base de dados da FIPE.`);
-
-                // BUSCA DINÂMICA DO ANO: encontra o código completo (ex: "2026-4") para o ano escolhido (ex: "2026")
-                const resAnos = await fetch(`https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos/${match.codigo}/anos`);
-                const anosDisponiveis = await resAnos.json();
-                
-                const anoFipeMatch = anosDisponiveis.find(a => a.codigo.startsWith(ano));
-                
-                if(!anoFipeMatch) {
-                    throw new Error(`O ano ${ano === "32000" ? "Zero KM" : ano} não foi encontrado na FIPE para este modelo.\nTente outro ano.`);
+                if (!response.ok) {
+                    throw new Error(`A combinação de Modelo/Ano não foi encontrada para este veículo.`);
                 }
 
-                const resVal = await fetch(`https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos/${match.codigo}/anos/${anoFipeMatch.codigo}`);
+                const data = await response.json();
                 
-                if (!resVal.ok) {
-                    throw new Error(`O ano selecionado (${ano.split('-')[0]}) não foi encontrado para o modelo ${match.nome}.\nTento outro ano ou insira manualmente.`);
-                }
-
-                const dataVal = await resVal.json();
-                
-                if(dataVal && dataVal.Valor) {
-                    // Limpeza completa: remove R$, pontos e espaços, troca vírgula por ponto
-                    const cleanValue = dataVal.Valor.replace(/[R$\.\s]/g, "").replace(",", ".");
-                    const valorFinal = parseFloat(cleanValue);
-
-                    if (isNaN(valorFinal)) throw new Error("O valor retornado pela FIPE é inválido.");
-
-                    document.getElementById('vCarro').value = "R$ " + fmt(valorFinal);
+                if (data && data.Valor) {
+                    // Preencher o campo com o valor formatado da FIPE
+                    document.getElementById('vCarro').value = data.Valor;
                     
-                    // Salvar e recalcular tudo
+                    // Recalcular o dashboard
                     calcular();
                     
-                    alert(`✓ Tabela FIPE Sucesso!\n\nModelo: ${dataVal.Modelo}\nAno: ${dataVal.AnoModelo}\nValor: ${dataVal.Valor}`);
+                    alert(`✓ Tabela FIPE Sucesso!\n\nModelo: ${data.Modelo}\nAno: ${data.AnoModelo}\nValor: ${data.Valor}\nRef: ${data.MesReferencia}`);
                 } else {
                     throw new Error("A API não retornou um valor válido para esta consulta.");
                 }
