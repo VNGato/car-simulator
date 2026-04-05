@@ -147,14 +147,28 @@
                                         placeholder="R$ 0,00"
                                         class="w-full bg-slate-800 rounded-lg p-2 mt-1 outline-none text-white font-bold border border-slate-700">
                                 </label>
-                                <label class="block text-[10px] text-green-500 uppercase font-bold italic">Faturamento
-                                    de Hoje
-                                    <input type="text" id="fatHoje" oninput="mascaraMoeda(event)" placeholder="R$ 0,00"
-                                        class="w-full bg-slate-800 rounded-lg p-2 mt-1 outline-none text-green-300 font-black border border-green-900/30">
+                                <label class="block text-[10px] text-green-500 uppercase font-bold italic">Faturamento de Hoje:
+                                    <input type="text" id="fatHoje" oninput="mascaraMoeda(event)" placeholder="R$ 0,00" readonly
+                                        class="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 mt-1 outline-none text-green-300 font-black opacity-75">
                                 </label>
                             </div>
+
+                            <!-- Feed de Corridas Diárias -->
+                            <div class="space-y-3">
+                                <label class="block text-[10px] text-slate-500 uppercase font-bold tracking-wider">Lançar Valor da Corrida (R$)
+                                    <div class="flex gap-2 mt-1">
+                                        <input type="text" id="valCorrida" oninput="mascaraMoeda(event)" onkeydown="if(event.key==='Enter') adicionarCorrida()" placeholder="R$ 0,00"
+                                            class="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-2.5 outline-none text-white font-bold focus:border-blue-500/50 transition-all">
+                                        <button onclick="adicionarCorrida()" class="px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-black transition-all shadow-lg shadow-blue-600/20">+</button>
+                                    </div>
+                                </label>
+                                <div id="feedCorridas" class="grid grid-cols-4 gap-2 transition-all duration-300 min-h-[10px]">
+                                    <!-- Ride chips entrarão aqui -->
+                                </div>
+                            </div>
+                            
                             <button onclick="salvarGanho()"
-                                class="w-full py-2 bg-green-600/20 hover:bg-green-600/40 text-green-400 text-[10px] font-black uppercase rounded-lg border border-green-600/20 transition-all italic">✓
+                                class="w-full py-3 bg-green-600/10 hover:bg-green-600/20 text-green-400 font-black rounded-xl border border-green-600/20 transition-all shadow-lg shadow-green-600/10 uppercase tracking-widest text-[10px]">✓
                                 Salvar Ganho de Hoje no Acumulado</button>
 
                             <div id="statusMeta"
@@ -174,59 +188,79 @@
                 </div>
 
                 <div class="lg:col-span-2 flex flex-col space-y-6">
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- Card 1: Faturamento Bruto (Entrada) + Hover Detalhes -->
-                        <div id="cardFatTotal"
-                            class="group relative bg-gradient-to-br from-indigo-950/20 to-slate-950 p-6 rounded-3xl border border-indigo-900/10 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
-                            <span class="self-start text-indigo-400 font-black text-[8px] italic bg-indigo-500/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Faturamento</span>
-                            <h2 class="text-indigo-500/60 text-[10px] font-black uppercase mb-1">Total Gerado</h2>
-                            <div id="resFaturamentoCard" class="text-2xl md:text-3xl font-black text-indigo-300 transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
-                            
-                            <!-- Novo Hover Detail: Visual de Vidro -->
-                            <div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-indigo-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
-                                <div class="text-[8px] text-indigo-300 uppercase font-black mb-2 tracking-tighter">Deduções Operacionais</div>
-                                <div id="detEnergia" class="text-xs text-white font-black italic drop-shadow-lg">Energia: R$ 0,00</div>
-                                <div id="detSeguro" class="text-xs text-indigo-200 font-black italic drop-shadow-lg">Seguro: R$ 0,00</div>
+                    <!-- Dashboard Retrátil: Privacidade por Clique -->
+                    <div class="relative bg-slate-900/20 rounded-3xl border border-slate-800/50 p-4 transition-all duration-500 overflow-hidden">
+                        <div class="flex justify-between items-center px-2 mb-0" id="privacyHeader">
+                            <div class="flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                                <span class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Dashboard de Ganhos</span>
                             </div>
+                            <button onclick="togglePrivacy()" id="btnPrivacy" class="flex items-center gap-2 group cursor-pointer border-none bg-transparent outline-none">
+                                <span id="txtPrivacy" class="text-[8px] font-bold text-slate-600 uppercase tracking-tighter transition-opacity">Exibir Dados</span>
+                                <div id="iconPrivacy" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 shadow-xl transition-all group-hover:text-indigo-400 group-hover:border-indigo-500/50">
+                                    <!-- Olho fechado por padrão -->
+                                    <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+                                    <svg id="eyeOpen" class="hidden" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </div>
+                            </button>
                         </div>
 
-                        <!-- Card 2: Lucro Operacional (Trabalho) + Hover Parcela -->
-                        <div id="cardOperacional"
-                            class="group relative bg-gradient-to-br from-blue-950/10 to-slate-950 p-6 rounded-3xl border border-blue-900/10 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
-                            <span id="statusOperacional"
-                                class="self-start text-blue-900/40 font-black text-[8px] italic bg-blue-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Operação</span>
-                            <h2 class="text-blue-400 text-[10px] font-black uppercase mb-1">Ganho de Trabalho</h2>
-                            <div id="resOperacional" class="text-2xl md:text-3xl font-black text-blue-300 italic transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                        <!-- Grade de Cards com Transição de Altura -->
+                        <div id="gridDashboard" style="max-height: 0; opacity: 0; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 0;" class="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-hidden pointer-events-none">
+                            <!-- Card 1: Faturamento Bruto (Entrada) + Hover Detalhes -->
+                            <div id="cardFatTotal"
+                                class="group relative bg-gradient-to-br from-indigo-950/20 to-slate-950 p-6 rounded-3xl border border-indigo-900/10 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
+                                <span id="statusFaturamento"
+                                    class="self-start text-indigo-400 font-black text-[8px] italic bg-indigo-900/30 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Faturamento</span>
+                                <h2 class="text-indigo-400 text-[10px] font-black uppercase mb-1">Total Gerado</h2>
+                                <div id="resFatTotal" class="text-2xl md:text-3xl font-black text-indigo-300 italic transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
 
-                            <!-- Novo Hover Detail: Visual de Vidro -->
-                            <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-blue-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
-                                <div class="text-[8px] text-blue-300 uppercase font-black mb-2 tracking-tighter">Custo de Capital</div>
-                                <div id="detParcela" class="text-xs text-white font-black italic drop-shadow-lg scale-110">Parcela: R$ 0,00</div>
+                                <!-- Detalhes Hover -->
+                                <div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-indigo-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                                    <div class="text-[8px] text-indigo-300 uppercase font-black mb-2 tracking-tighter">Deduções Operacionais</div>
+                                    <div id="detEnergia" class="text-xs text-white font-black italic drop-shadow-lg">Energia: R$ 0,00</div>
+                                    <div id="detSeguro" class="text-xs text-indigo-200 font-black italic drop-shadow-lg">Seguro: R$ 0,00</div>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Card 3: Caixa (Money in Hand) + Hover Depreciação -->
-                        <div id="cardCaixa"
-                            class="group relative bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
-                            <span id="statusCaixa"
-                                class="self-start text-slate-800 font-black text-[8px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Caixa</span>
-                            <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso</h2>
-                            <div id="resCaixa" class="text-2xl md:text-3xl font-black text-white transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                            <!-- Card 2: Lucro Operacional (Trabalho) + Hover Parcela -->
+                            <div id="cardOperacional"
+                                class="group relative bg-gradient-to-br from-blue-950/10 to-slate-950 p-6 rounded-3xl border border-blue-900/10 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
+                                <span id="statusOperacional"
+                                    class="self-start text-blue-900/40 font-black text-[8px] italic bg-blue-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Operação</span>
+                                <h2 class="text-blue-400 text-[10px] font-black uppercase mb-1">Ganho de Trabalho</h2>
+                                <div id="resOperacional" class="text-2xl md:text-3xl font-black text-blue-300 italic transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
 
-                            <!-- Novo Hover Detail: Visual de Vidro -->
-                            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-slate-700/50 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
-                                <div class="text-[8px] text-slate-400 uppercase font-black mb-2 tracking-tighter">Perda Patrimonial</div>
-                                <div id="detDepreciacao" class="text-xs text-red-500 font-black italic drop-shadow-lg scale-110">Desvalorização: R$ 0,00</div>
+                                <!-- Novo Hover Detail: Visual de Vidro -->
+                                <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-blue-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                                    <div class="text-[8px] text-blue-300 uppercase font-black mb-2 tracking-tighter">Custo de Capital</div>
+                                    <div id="detParcela" class="text-xs text-white font-black italic drop-shadow-lg scale-110">Parcela: R$ 0,00</div>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Card 4: Lucro Real (Patrimonial) -->
-                        <div id="cardReal"
-                            class="group bg-gradient-to-br from-green-950/10 to-slate-950 p-6 rounded-3xl border border-green-900/20 shadow-2xl transition-all duration-500 flex flex-col overflow-hidden">
-                            <span id="statusReal"
-                                class="self-start text-green-900/20 font-black text-[8px] italic bg-green-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Real</span>
-                            <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Patrimonial Final</h2>
-                            <div id="resReal" class="text-2xl md:text-3xl font-black text-green-400 transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                            <!-- Card 3: Caixa (Money in Hand) + Hover Depreciação -->
+                            <div id="cardCaixa"
+                                class="group relative bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl transition-all duration-500 flex flex-col cursor-help overflow-hidden">
+                                <span id="statusCaixa"
+                                    class="self-start text-slate-800 font-black text-[8px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Caixa</span>
+                                <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso</h2>
+                                <div id="resCaixa" class="text-2xl md:text-3xl font-black text-white transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+
+                                <!-- Novo Hover Detail: Visual de Vidro -->
+                                <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-slate-700/50 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                                    <div class="text-[8px] text-slate-400 uppercase font-black mb-2 tracking-tighter">Perda Patrimonial</div>
+                                    <div id="detDepreciacao" class="text-xs text-red-500 font-black italic drop-shadow-lg scale-110">Desvalorização: R$ 0,00</div>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Lucro Real (Patrimonial) -->
+                            <div id="cardReal"
+                                class="group bg-gradient-to-br from-green-950/10 to-slate-950 p-6 rounded-3xl border border-green-900/20 shadow-2xl transition-all duration-500 flex flex-col overflow-hidden">
+                                <span id="statusReal"
+                                    class="self-start text-green-900/20 font-black text-[8px] italic bg-green-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Real</span>
+                                <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Patrimonial Final</h2>
+                                <div id="resReal" class="text-2xl md:text-3xl font-black text-green-400 transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                            </div>
                         </div>
                     </div>
                     <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl">
@@ -263,7 +297,7 @@
                     </div>
 
                     <!-- Novo: Extrato de Ganhos Mensal ajustado para simetria -->
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex-1 flex flex-col">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col self-start w-full">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-[10px] font-black text-slate-500 uppercase italic flex items-center gap-2">
                                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -274,8 +308,7 @@
                                 class="text-[8px] font-black text-red-500/50 hover:text-red-500 uppercase italic">Rezetar
                                 Mês</button>
                         </div>
-                        <div id="listaGanhos" class="grid grid-cols-2 lg:grid-cols-4 gap-3 overflow-y-auto pr-2 flex-1"
-                            style="min-height: 250px;">
+                        <div id="listaGanhos" class="grid grid-cols-2 lg:grid-cols-4 gap-3 content-start">
                             <!-- Ganhos inseridos via JS -->
                         </div>
                     </div>
@@ -326,6 +359,7 @@
     <script>
         let logs = JSON.parse(localStorage.getItem('byd_logs')) || [];
         let logsGanhos = JSON.parse(localStorage.getItem('byd_logs_ganhos')) || [];
+        let corridasDia = [];
 
         function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -422,7 +456,7 @@
                 statusCapital.style.display = 'none';
             }
 
-            document.getElementById('resFaturamentoCard').innerText = `R$ ${fmt(faturamentoFinal)}`;
+            document.getElementById('resFatTotal').innerText = `R$ ${fmt(faturamentoFinal)}`;
             document.getElementById('detEnergia').innerText = `Energia: R$ ${fmt(cEnergiaFinal)}`;
             document.getElementById('detSeguro').innerText = `Seguro: R$ ${fmt(seg)}`;
             document.getElementById('detParcela').innerText = `Parcela: R$ ${fmt(par)}`;
@@ -481,6 +515,40 @@
             else { tag.className = "px-5 py-2 rounded-lg font-black text-[9px] bg-yellow-500 text-yellow-950"; tag.innerText = "OPERACIONAL"; }
         }
 
+        function togglePrivacy() {
+            const grid = document.getElementById('gridDashboard');
+            const txt = document.getElementById('txtPrivacy');
+            const icon = document.getElementById('iconPrivacy');
+            const eyeOpen = document.getElementById('eyeOpen');
+            const eyeClosed = document.getElementById('eyeClosed');
+            
+            const isVisible = grid.style.maxHeight !== '0px';
+
+            if (isVisible) {
+                // Fechar Cortina
+                grid.style.maxHeight = '0px';
+                grid.style.opacity = '0';
+                grid.style.marginTop = '0px';
+                grid.style.pointerEvents = 'none';
+                txt.innerText = "Exibir Dados";
+                icon.classList.remove('text-indigo-400', 'border-indigo-500/50');
+                icon.classList.add('text-slate-500');
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            } else {
+                // Abrir Cortina
+                grid.style.maxHeight = '500px';
+                grid.style.opacity = '1';
+                grid.style.marginTop = '1.5rem';
+                grid.style.pointerEvents = 'auto';
+                txt.innerText = "Ocultar Dados";
+                icon.classList.add('text-indigo-400', 'border-indigo-500/50');
+                icon.classList.remove('text-slate-500');
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            }
+        }
+
         function carregarDados() {
             const salvo = localStorage.getItem('byd_simulador_save');
             if (salvo) {
@@ -500,17 +568,56 @@
             renderLogs(); calcular();
         }
 
+        function adicionarCorrida() {
+            const input = document.getElementById('valCorrida');
+            const valor = formatToFloat(input.value);
+            if (valor <= 0) return;
+
+            corridasDia.unshift(valor);
+            input.value = "";
+            renderCorridas();
+            calcular();
+        }
+
+        function removerCorrida(index) {
+            corridasDia.splice(index, 1);
+            renderCorridas();
+            calcular();
+        }
+
+        function renderCorridas() {
+            const feed = document.getElementById('feedCorridas');
+            const fatHojeInput = document.getElementById('fatHoje');
+            feed.innerHTML = "";
+            
+            let total = 0;
+            corridasDia.forEach((v, i) => {
+                total += v;
+                feed.innerHTML += `
+                    <div class="bg-blue-600/10 border border-blue-500/20 px-2 py-1 rounded-lg flex items-center justify-between gap-1 group transition-all hover:bg-blue-600/30">
+                        <span class="text-[9px] font-black text-blue-400 italic truncate">R$ ${fmt(v)}</span>
+                        <button onclick="removerCorrida(${i})" class="text-blue-900 border-none hover:text-red-500 transition-colors text-[10px] font-bold">×</button>
+                    </div>
+                `;
+            });
+            fatHojeInput.value = total > 0 ? "R$ " + fmt(total) : "";
+        }
+
         function salvarGanho() {
             const h = document.getElementById('fatHoje');
             const a = document.getElementById('fatAcumulado');
             const vH = formatToFloat(h.value);
             const vA = formatToFloat(a.value);
 
-            if (vH <= 0) return alert("Insira o valor ganho hoje");
+            if (vH <= 0) return alert("Insira o valor ganho hoje (adicione as corridas)");
 
             const novoTotal = vA + vH;
             a.value = "R$ " + fmt(novoTotal);
             h.value = "";
+
+            // Limpar corridas do dia
+            corridasDia = [];
+            renderCorridas();
 
             // Adicionar ao log de ganhos
             logsGanhos.unshift({ data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), valor: vH });
