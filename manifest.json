@@ -2,7 +2,7 @@
   "name": "BYD Business Pro",
   "short_name": "BYD Business",
   "description": "Simulador Financeiro e Gestão de Ativos BYD",
-  "start_url": "./simulador.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#16a34a",

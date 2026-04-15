@@ -1,6 +1,6 @@
 const CACHE_NAME = 'byd-business-cache-v1';
 const urlsToCache = [
-  './simulador.html',
+  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
