@@ -176,20 +176,20 @@
                         </label>
                     </div>
 
-                    <div class="bg-slate-950 rounded-2xl p-6 border border-slate-800 space-y-4">
-                        <div class="flex justify-between items-center">
+                    <div class="bg-slate-950 rounded-2xl p-4 md:p-6 border border-slate-800 space-y-4 shadow-inner">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Lançar Registro</span>
-                            <div class="flex gap-1 bg-slate-900/50 p-1 rounded-lg border border-slate-800">
-                                <button onclick="setTipo('ganho')" id="btnTipoGanho" class="px-4 py-1 rounded-md text-[8px] font-black uppercase transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/20">Ganho</button>
-                                <button onclick="setTipo('custo')" id="btnTipoCusto" class="px-4 py-1 rounded-md text-[8px] font-black uppercase transition-all text-slate-500 hover:text-coral-400">Custo</button>
+                            <div class="flex gap-1 bg-slate-900/50 p-1 rounded-lg border border-slate-800 w-full sm:w-auto">
+                                <button onclick="setTipo('ganho')" id="btnTipoGanho" class="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-[8px] font-black uppercase transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/20">Ganho</button>
+                                <button onclick="setTipo('custo')" id="btnTipoCusto" class="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-[8px] font-black uppercase transition-all text-slate-500 hover:text-coral-400">Custo</button>
                             </div>
                         </div>
                         <div class="flex gap-2">
                             <input type="text" id="valCorrida" oninput="mascaraMoeda(event)" inputmode="decimal" onkeydown="if(event.key==='Enter') adicionarCorrida()" placeholder="R$ 0,00"
-                                class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none text-white font-black text-lg focus:border-blue-500/50 transition-all">
-                            <button id="btnAdd" onclick="adicionarCorrida()" class="px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black transition-all shadow-lg shadow-blue-600/20">+</button>
+                                class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none text-white font-black text-lg focus:border-blue-500/50 transition-all min-w-0">
+                            <button id="btnAdd" onclick="adicionarCorrida()" class="px-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black transition-all shadow-lg shadow-blue-600/20">+</button>
                         </div>
-                        <div id="feedCorridas" class="grid grid-cols-4 gap-2 transition-all duration-300">
+                        <div id="feedCorridas" class="grid grid-cols-2 sm:grid-cols-4 gap-2 transition-all duration-300">
                         </div>
                     </div>
 
@@ -535,9 +535,9 @@
                 if (isGanho) totalG += c.v;
                 else totalG -= c.v;
                 const item = `
-                    <div class="${isGanho ? 'bg-blue-600/10 border-blue-500/20' : 'bg-red-600/10 border-red-500/20'} border px-4 py-3 rounded-xl flex items-center justify-between gap-1 group transition-all hover:scale-[1.02]">
-                        <span class="text-[10px] font-black ${isGanho ? 'text-blue-400' : 'text-red-400'} italic truncate">${isGanho ? '' : '-'} R$ ${fmt(c.v)}</span>
-                        <button onclick="removerCorrida(${i})" class="${isGanho ? 'text-blue-900' : 'text-red-900'} border-none hover:text-white transition-colors text-xs font-bold">×</button>
+                    <div class="${isGanho ? 'bg-blue-600/10 border-blue-500/20' : 'bg-red-600/10 border-red-500/20'} border px-2 py-2.5 rounded-xl flex items-center justify-between gap-1 group transition-all hover:scale-[1.02]">
+                        <span class="text-[9px] font-black ${isGanho ? 'text-blue-400' : 'text-red-400'} italic truncate">${isGanho ? '' : '-'} R$ ${fmt(c.v)}</span>
+                        <button onclick="removerCorrida(${i})" class="${isGanho ? 'text-blue-900' : 'text-red-900/50'} border-none hover:text-white transition-colors text-[10px] font-bold px-1">×</button>
                     </div>
                 `;
                 feed.innerHTML += item;
