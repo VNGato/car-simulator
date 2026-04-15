@@ -54,7 +54,7 @@
 
 <body class="bg-slate-950 text-slate-200 font-sans p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto">
+        <div class="max-w-6xl mx-auto overflow-x-hidden">
         <header
             class="mb-8 bg-slate-900 p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
@@ -153,7 +153,7 @@
         </div>
 
         <div id="page-operacao" class="view-content hidden max-w-xl mx-auto py-4">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
                 <h2 class="text-green-500 font-black text-xs uppercase tracking-[0.3em] mb-4 flex items-center gap-3 italic">📈 Operação Mensal</h2>
                 
                 <div class="space-y-4">
@@ -205,7 +205,7 @@
         </div>
 
         <div id="page-custos" class="view-content hidden max-w-xl mx-auto py-4">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
                 <h2 class="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3">🛠️ Custos Variáveis</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -245,7 +245,7 @@
         </div>
 
         <div id="page-capital" class="view-content hidden max-w-xl mx-auto py-4">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
                 <h2 class="text-blue-500 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3">💰 Gestão de Capital</h2>
                 
                 <div class="grid grid-cols-2 gap-4">
@@ -323,7 +323,7 @@
         </div>
 
         <div id="page-extrato" class="view-content hidden max-w-xl mx-auto py-4">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-slate-500 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3">📜 Extrato Mensal</h2>
                     <span id="contDias" class="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[8px] border border-green-500/20 font-black">0 DIAS TRABALHADOS</span>
@@ -339,7 +339,7 @@
         </div>
 
         <div id="page-recargas" class="view-content hidden max-w-md mx-auto py-4">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
                 <div class="flex justify-between items-center bg-blue-500/5 p-3 rounded-2xl border border-blue-500/10">
                     <h2 class="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em] italic">🔋 Registro de Energização</h2>
                     <span id="contCargas" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[7px] font-black uppercase">0 Cargas</span>
@@ -370,7 +370,7 @@
     <script>
         let logs = JSON.parse(localStorage.getItem('byd_logs')) || [];
         let logsGanhos = JSON.parse(localStorage.getItem('byd_logs_ganhos')) || [];
-        let corridasDia = [];
+        let corridasDia = JSON.parse(localStorage.getItem('byd_corridas_dia')) || [];
         let tipoLancamento = 'ganho';
 
         function switchPage(pageId) {
@@ -508,18 +508,20 @@
             }
         }
 
-        function adicionarCorrida() {
-            const input = document.getElementById('valCorrida');
-            const valor = formatToFloat(input.value);
-            if (valor <= 0) return;
-            corridasDia.unshift({ v: valor, t: tipoLancamento });
-            input.value = "";
-            renderCorridas();
-            calcular();
-        }
+         function adicionarCorrida() {
+             const input = document.getElementById('valCorrida');
+             const valor = formatToFloat(input.value);
+             if (valor <= 0) return;
+             corridasDia.unshift({ v: valor, t: tipoLancamento });
+             localStorage.setItem('byd_corridas_dia', JSON.stringify(corridasDia));
+             input.value = "";
+             renderCorridas();
+             calcular();
+         }
 
         function removerCorrida(index) {
             corridasDia.splice(index, 1);
+            localStorage.setItem('byd_corridas_dia', JSON.stringify(corridasDia));
             renderCorridas();
             calcular();
         }
@@ -567,6 +569,7 @@
 
             // Limpar Operações de Hoje
             corridasDia = [];
+            localStorage.removeItem('byd_corridas_dia');
             renderCorridas();
             renderGanhos();
             calcular();
@@ -740,6 +743,8 @@
 
             calcular();
             renderLogs();
+            renderGanhos();
+            renderCorridas();
         }
 
         // Registro do Service Worker para PWA
