@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --coral-400: #fb7185;
@@ -49,10 +50,60 @@
         .card-glow {
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.05);
         }
+
+        /* UI de Autenticação */
+        #page-auth {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            background: #0f172a;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            border: 1px solid #1e293b;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 
 <body class="bg-slate-950 text-slate-200 font-sans p-2 md:p-8">
+
+    <!-- Tela de Autenticação Cloud -->
+    <div id="page-auth">
+        <div class="auth-container space-y-8 animate-in fade-in zoom-in duration-500">
+            <div class="text-center space-y-2">
+                <h1 class="text-3xl font-black text-white italic tracking-tighter uppercase">BYD BUSINESS <span class="text-green-500 text-xs">v6.0</span></h1>
+                <p id="auth-title" class="text-slate-500 text-xs uppercase font-bold tracking-widest">Sincronização em Nuvem</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-[10px] text-slate-500 uppercase font-black tracking-widest">E-mail</label>
+                    <input type="email" id="auth-email" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 outline-none text-white focus:border-indigo-500/50 transition-all">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Senha</label>
+                    <input type="password" id="auth-password" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 outline-none text-white focus:border-indigo-500/50 transition-all">
+                </div>
+                
+                <button onclick="handleAuth()" id="btn-auth" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl shadow-lg shadow-indigo-600/20 transition-all uppercase tracking-widest text-[10px]">Entrar no Cockpit</button>
+            </div>
+
+            <div class="text-center pt-4 border-t border-slate-800">
+                <button onclick="toggleAuthMode()" id="btn-toggle-auth" class="text-[10px] text-slate-500 hover:text-indigo-400 font-black uppercase tracking-widest transition-colors">Não tem conta? Cadastre-se</button>
+            </div>
+            
+            <div id="auth-error" class="hidden text-[10px] text-red-500 font-bold text-center uppercase tracking-widest bg-red-500/10 p-2 rounded border border-red-500/20"></div>
+        </div>
+    </div>
 
         <div class="max-w-6xl mx-auto overflow-x-hidden">
         <header
@@ -63,6 +114,13 @@
                 <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Gestão de Ativos & Eficiência
                 </p>
             </div>
+            <div class="flex items-center gap-4">
+                <button onclick="logout()" class="hidden md:flex flex-col items-center group">
+                    <div class="p-2 bg-slate-800 rounded-lg group-hover:bg-red-500/20 transition-all border border-slate-700 group-hover:border-red-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 group-hover:text-red-500"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </div>
+                    <span class="text-[8px] font-black uppercase text-slate-600 group-hover:text-red-500 mt-1">Sair</span>
+                </button>
             <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-t border-slate-800 lg:top-0 lg:bottom-auto lg:border-t-0 lg:border-b flex justify-around items-center px-2 py-3 lg:py-0 overflow-x-auto no-scrollbar shadow-2xl">
                 <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all nav-active group min-w-[60px]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
@@ -374,10 +432,121 @@
     </div>
 
     <script>
-        let logs = JSON.parse(localStorage.getItem('byd_logs')) || [];
-        let logsGanhos = JSON.parse(localStorage.getItem('byd_logs_ganhos')) || [];
-        let corridasDia = JSON.parse(localStorage.getItem('byd_corridas_dia')) || [];
+        // Configuração Supabase
+        const SUPABASE_URL = 'https://kgwswvnyhysuazdqtdww.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd3N3dm55aHlzdWF6ZHF0ZHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzA1OTcsImV4cCI6MjA5MTk0NjU5N30.9CUflkb0U7JMCyqYxSQ09Ca6Bgcf8wE8dG4P02MDL5g';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        window.supabase = _supabase; // Tornar global para acesso nas funções
+        const db = _supabase; // Atalho
+
+        let currentUser = null;
+        let authMode = 'login';
+        let logs = [];
+        let logsGanhos = [];
+        let corridasDia = [];
         let tipoLancamento = 'ganho';
+
+        // --- AUTH LOGIC ---
+        async function toggleAuthMode() {
+            authMode = authMode === 'login' ? 'signup' : 'login';
+            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Sincronização em Nuvem' : 'Criar Nova Conta';
+            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Criar Conta e Iniciar';
+            document.getElementById('btn-toggle-auth').innerText = authMode === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entrar';
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const btn = document.getElementById('btn-auth');
+            const errDiv = document.getElementById('auth-error');
+
+            if (!email || !password) return;
+            
+            btn.disabled = true;
+            btn.innerText = "⏳ Processando...";
+            errDiv.classList.add('hidden');
+
+            try {
+                let res;
+                if (authMode === 'login') {
+                    res = await supabase.auth.signInWithPassword({ email, password });
+                } else {
+                    res = await supabase.auth.signUp({ email, password });
+                }
+
+                if (res.error) throw res.error;
+                
+                if (authMode === 'signup') alert("✓ Conta criada! Verifique seu e-mail para confirmar (se necessário) ou faça o login.");
+                
+            } catch (err) {
+                errDiv.innerText = err.message;
+                errDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Criar Conta e Iniciar';
+            }
+        }
+
+        async function logout() {
+            if (confirm("Deseja sair da sua conta?")) {
+                await supabase.auth.signOut();
+                location.reload();
+            }
+        }
+
+        // Monitorar Estado do Usuário
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('page-auth').classList.add('hidden');
+                document.querySelectorAll('button[onclick="logout()"]').forEach(b => b.classList.remove('hidden'));
+                await carregarDadosCloud();
+            } else {
+                currentUser = null;
+                document.getElementById('page-auth').classList.remove('hidden');
+                document.querySelectorAll('button[onclick="logout()"]').forEach(b => b.classList.add('hidden'));
+            }
+        });
+
+        // --- CLOUD SYNC LOGIC ---
+        async function salvarPerfilCloud() {
+            if (!currentUser) return;
+            const campos = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'];
+            const config = {};
+            campos.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) config[id] = el.value;
+            });
+
+            await supabase.from('profiles').upsert({ id: currentUser.id, config: config });
+        }
+
+        async function carregarDadosCloud() {
+            if (!currentUser) return;
+            
+            // 1. Carregar Perfil
+            const { data: profile } = await supabase.from('profiles').select('config').eq('id', currentUser.id).single();
+            if (profile && profile.config) {
+                Object.keys(profile.config).forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = profile.config[id];
+                });
+            }
+
+            // 2. Carregar Operações (Mês Atual)
+            const { data: opData } = await supabase.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            logsGanhos = opData || [];
+
+            // 3. Carregar Recargas
+            const { data: recData } = await supabase.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            logs = recData || [];
+
+            calcular();
+            renderLogs();
+            renderGanhos();
+            renderCorridas();
+        }
 
         function switchPage(pageId) {
             document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
@@ -421,6 +590,7 @@
                 if(el) save[id] = el.value;
             });
             localStorage.setItem('byd_simulador_save', JSON.stringify(save));
+            salvarPerfilCloud();
 
             const vC = formatToFloat(save.vCarro), vE = formatToFloat(save.vEntrada), fat = formatToFloat(save.faturamento);
             const fatAcum = formatToFloat(save.fatAcumulado), fatHoje = formatToFloat(save.fatHoje);
@@ -514,16 +684,16 @@
             }
         }
 
-         function adicionarCorrida() {
-             const input = document.getElementById('valCorrida');
-             const valor = formatToFloat(input.value);
-             if (valor <= 0) return;
-             corridasDia.unshift({ v: valor, t: tipoLancamento });
-             localStorage.setItem('byd_corridas_dia', JSON.stringify(corridasDia));
-             input.value = "";
-             renderCorridas();
-             calcular();
-         }
+        async function adicionarCorrida() {
+            const input = document.getElementById('valCorrida');
+            const valor = formatToFloat(input.value);
+            if (valor <= 0) return;
+            corridasDia.unshift({ v: valor, t: tipoLancamento });
+            localStorage.setItem('byd_corridas_dia', JSON.stringify(corridasDia));
+            input.value = "";
+            renderCorridas();
+            calcular();
+        }
 
         function removerCorrida(index) {
             corridasDia.splice(index, 1);
@@ -553,7 +723,7 @@
             if(fatHojeInput) fatHojeInput.value = totalG !== 0 ? "R$ " + fmt(totalG) : "";
         }
 
-        function salvarGanho() {
+        async function salvarGanho() {
             if (corridasDia.length === 0) return alert("Lance pelo menos uma operação (Ganho ou Custo) antes de salvar.");
             
             let totalHoje = 0;
@@ -562,29 +732,35 @@
                 else totalHoje -= c.v;
             });
 
+            // Adicionar ao Histórico Cloud
+            const dataStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            const { error } = await supabase.from('operations').insert({
+                user_id: currentUser.id,
+                value: totalHoje,
+                type: totalHoje >= 0 ? 'ganho' : 'custo',
+                date: dataStr
+            });
+
+            if (error) return alert("Erro ao salvar na nuvem: " + error.message);
+
             // Atualizar Acumulado Geral
             const inputAcum = document.getElementById('fatAcumulado');
             const vA = formatToFloat(inputAcum.value);
             const novoTotal = vA + totalHoje;
             inputAcum.value = "R$ " + fmt(novoTotal);
-
-            // Adicionar ao Histórico (Extrato)
-            const dataStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-            logsGanhos.unshift({ data: dataStr, valor: totalHoje });
-            localStorage.setItem('byd_logs_ganhos', JSON.stringify(logsGanhos));
+            salvarPerfilCloud();
 
             // Limpar Operações de Hoje
             corridasDia = [];
             localStorage.removeItem('byd_corridas_dia');
-            renderCorridas();
-            renderGanhos();
-            calcular();
             
-            alert(`✓ Operação de R$ ${fmt(totalHoje)} salva no histórico e acumulado!`);
+            await carregarDadosCloud();
+            
+            alert(`✓ Operação de R$ ${fmt(totalHoje)} salva na nuvem!`);
             switchPage('extrato');
         }
 
-        function salvarLog() {
+        async function salvarLog() {
             const valInput = document.getElementById('log-valor');
             const kmInput = document.getElementById('log-km');
             const v = formatToFloat(valInput.value);
@@ -592,19 +768,22 @@
             
             if (!v || !k) return alert("Preencha o Valor da Recarga e o KM Atual do Painel");
             
-            logs.unshift({ 
-                data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }), 
-                valor: v, 
-                km: k 
+            const dataStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+            const { error } = await supabase.from('recharges').insert({
+                user_id: currentUser.id,
+                value: v,
+                km: k,
+                date: dataStr
             });
-            
-            localStorage.setItem('byd_logs', JSON.stringify(logs));
+
+            if (error) return alert("Erro ao salvar recarga: " + error.message);
+
             valInput.value = ""; 
             kmInput.value = "";
             
-            renderLogs(); 
-            calcular();
-            alert("✓ Recarga salva com sucesso no banco de dados!");
+            await carregarDadosCloud();
+            alert("✓ Recarga salva na nuvem com sucesso!");
         }
 
         async function buscarFipe() {
@@ -732,26 +911,26 @@
             reader.readAsText(e.target.files[0]);
         }
 
-        function limparCamposDashboard() { if (confirm("Resetar TODA a Simulação e Metas?")) { localStorage.removeItem('byd_simulador_save'); localStorage.removeItem('byd_logs_ganhos'); location.reload(); } }
-        function limparLogs() { if (confirm("Apagar Histórico de Cargas?")) { localStorage.removeItem('byd_logs'); logs = []; renderLogs(); calcular(); } }
-        function limparGanhos() { if (confirm("Apagar Histórico de Ganhos?")) { localStorage.removeItem('byd_logs_ganhos'); logsGanhos = []; renderGanhos(); calcular(); } }
-
-        function carregarDados() {
-            const save = JSON.parse(localStorage.getItem('byd_simulador_save')) || {};
-            const campos = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'];
-            
-            campos.forEach(id => {
-                const el = document.getElementById(id);
-                if (el && save[id] !== undefined) {
-                    el.value = save[id];
-                }
-            });
-
-            calcular();
-            renderLogs();
-            renderGanhos();
-            renderCorridas();
+        async function limparCamposDashboard() { 
+            if (confirm("Resetar TODA a Simulação e Metas na Nuvem?")) { 
+                await supabase.from('profiles').delete().eq('id', currentUser.id);
+                location.reload(); 
+            } 
         }
+        async function limparLogs() { 
+            if (confirm("Apagar Histórico de Cargas na Nuvem?")) { 
+                await supabase.from('recharges').delete().eq('user_id', currentUser.id);
+                await carregarDadosCloud();
+            } 
+        }
+        async function limparGanhos() { 
+            if (confirm("Apagar Histórico de Ganhos na Nuvem?")) { 
+                await supabase.from('operations').delete().eq('user_id', currentUser.id);
+                await carregarDadosCloud();
+            } 
+        }
+
+        // Removida função carregarDados anterior (substituída por carregarDadosCloud)
 
         // Registro do Service Worker para PWA
         if ('serviceWorker' in navigator) {
@@ -762,7 +941,7 @@
             });
         }
 
-        carregarDados();
+        // carregarDadosCloud é chamado pelo onAuthStateChange
         renderGanhos();
     </script>
 </body>
