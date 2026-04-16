@@ -198,9 +198,10 @@
             <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
                 <h2 class="text-blue-500 font-black text-xs uppercase tracking-[0.3em] italic">💰 Gestão de Capital</h2>
                 <div class="grid grid-cols-2 gap-4">
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Modelo BYD</span><select id="modeloByd" onchange="calcular()" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black appearance-none"><option value="0.14">Dolphin Mini (14%)</option><option value="0.12">Dolphin GS (12%)</option><option value="0.13">Dolphin Plus (13%)</option><option value="0.16">Yuan Plus (16%)</option><option value="0.17">Song Plus (17%)</option><option value="0.18">Seal (18%)</option></select></label>
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Ano</span><select id="anoModelo" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black"><option value="2025">2025</option><option value="2024">2024</option></select></label>
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Modelo BYD</span><select id="modeloByd" onchange="calcular()" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black appearance-none"><option value="0.14">Dolphin Mini (14%)</option><option value="0.12">Dolphin GS/EV (12%)</option><option value="0.13">Dolphin Plus (13%)</option><option value="0.16">Yuan Plus (16%)</option><option value="0.17">Song Plus (17%)</option><option value="0.18">Seal (18%)</option><option value="0.15">King GL (15%)</option><option value="0.15">King GS (15%)</option><option value="0.20">Tan EV (20%)</option><option value="0.20">Han EV (20%)</option></select></label>
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Ano</span><select id="anoModelo" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black"><option value="2025">Zero KM (2025)</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option></select></label>
                 </div>
+                <button onclick="buscarFipe()" id="btn-fipe" class="w-full py-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-500/30 rounded-xl font-black transition-all uppercase tracking-widest text-[9px]">🔍 Consultar Tabela FIPE</button>
                 <div class="space-y-4">
                     <label class="block"><span class="text-[10px] text-slate-500 uppercase font-black">Valor do Carro (R$)</span><input type="text" id="vCarro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 text-white font-black text-xl border-slate-700"></label>
                     <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Situação</span><select id="situacaoVeiculo" onchange="calcular()" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black"><option value="quitado">Quitado</option><option value="parcelado">Financiado</option></select></label>
@@ -272,9 +273,25 @@
             const btn = document.getElementById('btn-auth'), errDiv = document.getElementById('auth-error');
             if (!email || !password) return; btn.disabled = true; btn.innerText = "⏳ Verificando..."; errDiv.classList.add('hidden');
             try {
-                let res; if (authMode === 'login') res = await auth.signInWithPassword({ email, password }); else res = await auth.signUp({ email, password });
-                if (res.error) throw res.error; if (authMode === 'signup') alert("✓ Conta ativa! Faça login.");
-            } catch (err) { errDiv.innerText = err.message; errDiv.classList.remove('hidden'); } finally { btn.disabled = false; btn.innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Criar Conta e Iniciar'; }
+                let res; 
+                if (authMode === 'login') res = await auth.signInWithPassword({ email, password }); 
+                else res = await auth.signUp({ email, password });
+                
+                if (res.error) throw res.error; 
+                
+                if (authMode === 'signup') {
+                    errDiv.innerText = "✓ Sucesso! Verifique seu e-mail para confirmar e poder entrar.";
+                    errDiv.className = "text-[10px] text-green-500 font-bold text-center uppercase tracking-widest bg-green-500/10 p-4 rounded-xl border border-green-500/20 shadow-lg shadow-green-500/5";
+                    errDiv.classList.remove('hidden');
+                }
+            } catch (err) { 
+                errDiv.innerText = err.message; 
+                errDiv.className = "text-[10px] text-red-500 font-bold text-center uppercase tracking-widest bg-red-500/10 p-4 rounded-xl border border-red-500/20";
+                errDiv.classList.remove('hidden'); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Criar Conta e Iniciar'; 
+            }
         }
 
         async function logout() { if (confirm("Sair?")) { document.getElementById('page-auth').classList.remove('hidden'); document.getElementById('app-main').classList.add('hidden'); await auth.signOut(); localStorage.clear(); sessionStorage.clear(); location.reload(); } }
@@ -331,6 +348,41 @@
         function adicionarCorrida() { const i = document.getElementById('valCorrida'), v = formatToFloat(i.value); if (v <= 0) return; corridasDia.unshift({ v, t: tipoLancamento }); i.value = ""; renderCorridas(); calcular(); }
         function removerCorrida(i) { corridasDia.splice(i, 1); renderCorridas(); calcular(); }
         function renderCorridas() { const f = document.getElementById('feedCorridas'); f.innerHTML = ""; let t = 0; corridasDia.forEach((c, idx) => { t += (c.t === 'ganho' ? c.v : -c.v); f.innerHTML += `<div class="bg-slate-900 border ${c.t === 'ganho' ? 'border-blue-500/20 text-blue-400' : 'border-red-500/20 text-red-400'} px-2 py-2 rounded-lg flex justify-between items-center text-[9px] font-bold">R$ ${fmt(c.v)} <button onclick="removerCorrida(${idx})">×</button></div>`; }); document.getElementById('fatHoje').value = t !== 0 ? "R$ " + fmt(t) : ""; }
+
+        async function buscarFipe() {
+            const modSel = document.getElementById('modeloByd');
+            const modelText = modSel.options[modSel.selectedIndex].text;
+            const anoSel = document.getElementById('anoModelo');
+            const anoVal = anoSel.value;
+            const btn = document.getElementById('btn-fipe');
+            
+            const fipeModels = {
+                "Dolphin Mini": 10986, "Dolphin GS/EV": 10813, "Dolphin Plus": 10427,
+                "Song Plus": 11084, "Yuan Plus": 9975, "Seal": 10833,
+                "Tan EV": 9775, "Han EV": 9860, "King GL": 11078, "King GS": 11079
+            };
+
+            const modelKey = Object.keys(fipeModels).find(m => modelText.includes(m));
+            const modelId = fipeModels[modelKey];
+            if (!modelId) return alert("Modelo não mapeado para Fipe.");
+
+            // Identificar sufixo (4 elétrico, 6 híbrido)
+            const isHybrid = modelText.includes("Song") || modelText.includes("King");
+            const suffix = isHybrid ? "6" : "4";
+            const yearCode = (anoVal === "2025") ? "32000-" + suffix : anoVal + "-" + suffix;
+
+            btn.innerText = "⏳ Buscando...";
+            try {
+                const url = `https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos/${modelId}/anos/${yearCode}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("Combinação Modelo/Ano não encontrada na API.");
+                const data = await res.json();
+                document.getElementById('vCarro').value = data.Valor;
+                alert(`✓ Sucesso!\n\n${data.Modelo}\n${data.AnoModelo}\nRef: ${data.MesReferencia}\nValor: ${data.Valor}`);
+                calcular(); await salvarPerfilCloud();
+            } catch (e) { alert("Erro Fipe: " + e.message); }
+            finally { btn.innerText = "🔍 Consultar Tabela FIPE"; }
+        }
 
         async function salvarGanho() {
             if (corridasDia.length === 0) return;
