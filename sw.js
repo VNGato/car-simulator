@@ -1,4 +1,4 @@
-const CACHE_NAME = 'byd-business-cache-v3';
+const CACHE_NAME = 'byd-business-cache-v6';
 const urlsToCache = [
   './index.html',
   './manifest.json',
