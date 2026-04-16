@@ -105,7 +105,10 @@
         </div>
     </div>
 
-        <div class="max-w-6xl mx-auto overflow-x-hidden">
+    </div>
+    
+    <!-- Container Principal do Aplicativo -->
+    <div id="app-main" class="max-w-6xl mx-auto overflow-x-hidden">
         <header
             class="mb-8 bg-slate-900 p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
@@ -491,8 +494,20 @@
 
         async function logout() {
             if (confirm("Deseja sair da sua conta?")) {
-                await supabaseClient.auth.signOut();
-                location.reload();
+                // UI feedback imediato
+                document.getElementById('page-auth').classList.remove('hidden');
+                document.getElementById('app-main').classList.add('hidden');
+                
+                try {
+                    await supabaseClient.auth.signOut();
+                    // Limpeza radical de estados residuais
+                    localStorage.removeItem('supabase.auth.token'); 
+                    sessionStorage.clear();
+                    location.reload(); 
+                } catch (e) {
+                    console.error("Erro ao sair:", e);
+                    location.reload();
+                }
             }
         }
 
