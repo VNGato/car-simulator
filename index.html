@@ -199,7 +199,7 @@
                 <h2 class="text-blue-500 font-black text-xs uppercase tracking-[0.3em] italic">💰 Gestão de Capital</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Modelo BYD</span><select id="modeloByd" onchange="calcular()" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black appearance-none"><option value="0.14">Dolphin Mini (14%)</option><option value="0.12">Dolphin GS/EV (12%)</option><option value="0.13">Dolphin Plus (13%)</option><option value="0.16">Yuan Plus (16%)</option><option value="0.17">Song Plus (17%)</option><option value="0.18">Seal (18%)</option><option value="0.15">King GL (15%)</option><option value="0.15">King GS (15%)</option><option value="0.20">Tan EV (20%)</option><option value="0.20">Han EV (20%)</option></select></label>
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Ano</span><select id="anoModelo" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black"><option value="2025">Zero KM (2025)</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option></select></label>
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Ano</span><select id="anoModelo" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black"><option value="Zero Km">Zero Km</option><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option></select></label>
                 </div>
                 <button onclick="buscarFipe()" id="btn-fipe" class="w-full py-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-500/30 rounded-xl font-black transition-all uppercase tracking-widest text-[9px]">🔍 Consultar Tabela FIPE</button>
                 <div class="space-y-4">
@@ -369,7 +369,11 @@
             // Identificar sufixo (4 elétrico, 6 híbrido)
             const isHybrid = modelText.includes("Song") || modelText.includes("King");
             const suffix = isHybrid ? "6" : "4";
-            const yearCode = (anoVal === "2025") ? "32000-" + suffix : anoVal + "-" + suffix;
+            
+            let yearCode = "";
+            if (anoVal === "Zero Km" || anoVal === "2026") yearCode = "32000-" + suffix;
+            else if (anoVal === "2025") yearCode = "2025-" + suffix;
+            else yearCode = anoVal + "-" + suffix;
 
             btn.innerText = "⏳ Buscando...";
             try {
