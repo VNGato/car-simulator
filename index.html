@@ -435,10 +435,11 @@
         // Configuração Supabase
         const SUPABASE_URL = 'https://kgwswvnyhysuazdqtdww.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd3N3dm55aHlzdWF6ZHF0ZHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzA1OTcsImV4cCI6MjA5MTk0NjU5N30.9CUflkb0U7JMCyqYxSQ09Ca6Bgcf8wE8dG4P02MDL5g';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-        window.supabase = _supabase; // Tornar global para acesso nas funções
-        const db = _supabase; // Atalho
+        
+        // Inicializar cliente com nome claro para evitar conflito com a lib global
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const db = supabaseClient;
+        const auth = supabaseClient.auth;
 
         let currentUser = null;
         let authMode = 'login';
@@ -490,13 +491,13 @@
 
         async function logout() {
             if (confirm("Deseja sair da sua conta?")) {
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
                 location.reload();
             }
         }
 
         // Monitorar Estado do Usuário
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (session) {
                 currentUser = session.user;
                 document.getElementById('page-auth').classList.add('hidden');
@@ -519,14 +520,14 @@
                 if(el) config[id] = el.value;
             });
 
-            await supabase.from('profiles').upsert({ id: currentUser.id, config: config });
+            await db.from('profiles').upsert({ id: currentUser.id, config: config });
         }
 
         async function carregarDadosCloud() {
             if (!currentUser) return;
             
             // 1. Carregar Perfil
-            const { data: profile } = await supabase.from('profiles').select('config').eq('id', currentUser.id).single();
+            const { data: profile } = await db.from('profiles').select('config').eq('id', currentUser.id).single();
             if (profile && profile.config) {
                 Object.keys(profile.config).forEach(id => {
                     const el = document.getElementById(id);
@@ -535,11 +536,11 @@
             }
 
             // 2. Carregar Operações (Mês Atual)
-            const { data: opData } = await supabase.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            const { data: opData } = await db.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
             logsGanhos = opData || [];
 
             // 3. Carregar Recargas
-            const { data: recData } = await supabase.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            const { data: recData } = await db.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
             logs = recData || [];
 
             calcular();
