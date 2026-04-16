@@ -474,9 +474,9 @@
             try {
                 let res;
                 if (authMode === 'login') {
-                    res = await supabaseClient.auth.signInWithPassword({ email, password });
+                    res = await auth.signInWithPassword({ email, password });
                 } else {
-                    res = await supabaseClient.auth.signUp({ email, password });
+                    res = await auth.signUp({ email, password });
                 }
 
                 if (res.error) throw res.error;
@@ -499,7 +499,7 @@
                 document.getElementById('app-main').classList.add('hidden');
                 
                 try {
-                    await supabaseClient.auth.signOut();
+                    await auth.signOut();
                     // Limpeza radical de estados residuais
                     localStorage.removeItem('supabase.auth.token'); 
                     sessionStorage.clear();
@@ -512,7 +512,7 @@
         }
 
         // Monitorar Estado do Usuário
-        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        auth.onAuthStateChange(async (event, session) => {
             if (session) {
                 currentUser = session.user;
                 document.getElementById('page-auth').classList.add('hidden');
@@ -750,7 +750,7 @@
 
             // Adicionar ao Histórico Cloud
             const dataStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-            const { error } = await supabase.from('operations').insert({
+            const { error } = await db.from('operations').insert({
                 user_id: currentUser.id,
                 value: totalHoje,
                 type: totalHoje >= 0 ? 'ganho' : 'custo',
@@ -786,7 +786,7 @@
             
             const dataStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
-            const { error } = await supabase.from('recharges').insert({
+            const { error } = await db.from('recharges').insert({
                 user_id: currentUser.id,
                 value: v,
                 km: k,
