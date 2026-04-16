@@ -26,7 +26,7 @@
         .nav-active svg { color: #4f46e5; filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.5)); }
 
         /* Ajustes para a nova navegação */
-        body { padding-bottom: 80px; } /* Espaço para a barra inferior no mobile */
+        body { padding-bottom: 120px; } /* Espaço para a barra inferior no mobile */
         @media (min-width: 1024px) {
             body { padding-bottom: 0; padding-top: 80px; }
         }
@@ -150,6 +150,7 @@
                 <div id="resFaltaMeta" class="text-3xl font-black text-blue-400 uppercase">Aguardando Dados</div>
                 <div id="resDiaria" class="text-[10px] text-slate-500 mt-2 uppercase font-bold italic tracking-wider">Configure sua operação semanal</div>
             </div>
+            <div class="h-10 lg:hidden"></div> <!-- Respiro extra para mobile -->
         </div>
 
         <div id="page-operacao" class="view-content hidden max-w-xl mx-auto py-4">
@@ -201,6 +202,7 @@
                         class="w-full py-2 text-[8px] font-black uppercase text-slate-600 border border-slate-800 rounded-lg hover:bg-red-500 hover:text-white transition-all italic mt-4 opacity-50">↻
                         Resetar Projeto</button>
                 </div>
+                <div class="h-10 lg:hidden"></div> <!-- Respiro extra para mobile -->
             </section>
         </div>
 
@@ -332,8 +334,9 @@
                 <div id="listaGanhos" class="grid grid-cols-2 gap-4">
                 </div>
 
-                <div class="pt-8 border-t border-slate-800">
+                <div class="pt-8 border-t border-slate-800 text-center">
                     <button onclick="limparGanhos()" class="w-full py-4 text-[9px] font-black text-red-500/50 hover:bg-red-500/10 hover:text-red-500 uppercase italic border border-red-500/10 rounded-xl transition-all">⚠️ Resetar Todo o Histórico do Mês</button>
+                    <div class="h-10 lg:hidden"></div> <!-- Respiro extra para mobile -->
                 </div>
             </section>
         </div>
@@ -362,6 +365,7 @@
                 <div class="pt-6 border-t border-slate-800">
                     <div id="historicoLogs" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 no-scrollbar"></div>
                     <button onclick="limparLogs()" class="w-full text-red-900/40 hover:text-red-600 text-[8px] font-black uppercase py-4 transition-all italic mt-4">⚠️ Limpar Banco de Dados de Cargas</button>
+                    <div class="h-10 lg:hidden"></div> <!-- Respiro extra para mobile -->
                 </div>
             </section>
         </div>
