@@ -21,8 +21,9 @@
         .hidden { display: none !important; }
         .nav-active { color: #4f46e5; border-top: 2px solid #4f46e5; background: rgba(79, 70, 229, 0.05); }
         .nav-active svg { color: #4f46e5; filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.5)); }
-        body { padding-bottom: 120px; }
-        @media (min-width: 1024px) { body { padding-bottom: 0; padding-top: 80px; } }
+        body { padding-bottom: 140px; padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+        nav { padding-bottom: env(safe-area-inset-bottom) !important; min-height: calc(70px + env(safe-area-inset-bottom)); }
+        @media (min-width: 1024px) { body { padding-bottom: 0; padding-top: 80px; } nav { padding-bottom: 0 !important; min-height: auto; } }
         #historicoLogs::-webkit-scrollbar { width: 4px; }
         #historicoLogs::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -100,8 +101,8 @@
             </div>
             <div id="statusMeta" class="p-8 bg-slate-950 rounded-3xl border border-slate-800 text-center">
                 <div class="text-[10px] text-slate-600 font-black uppercase mb-2 tracking-[0.2em]">Foco na Meta</div>
-                <div id="resFaltaMeta" class="text-3xl font-black text-blue-400 uppercase italic">Carregando Nuvem...</div>
-                <div id="resDiaria" class="text-[10px] text-slate-500 mt-2 uppercase font-bold italic tracking-wider">Sincronizando...</div>
+                <div id="resFaltaMeta" class="text-3xl font-black text-blue-400 uppercase italic">Faltam R$ 0,00</div>
+                <div id="resDiaria" class="text-[10px] text-slate-500 mt-2 uppercase font-bold italic tracking-wider">Aguardando Sincronia...</div>
             </div>
         </div>
 
@@ -229,6 +230,8 @@
                 currentUser = s.user; 
                 document.getElementById('page-auth').classList.add('hidden'); 
                 document.getElementById('app-main').classList.remove('hidden'); 
+                carregarCacheLocal();
+                calcular();
                 await carregarDadosCloud(); 
             } else { 
                 currentUser = null; 
@@ -247,10 +250,34 @@
                 if(el && el.value) save[id] = el.value; 
             }); 
             if(Object.keys(save).length > 0) {
+                localStorage.setItem('byd_config', JSON.stringify(save));
                 const { error } = await db.from('profiles').upsert({ id: currentUser.id, config: save });
                 if(error) { console.warn("Erro Sincronia Perfil:", error.message); setSyncStatus('error'); }
                 else { setSyncStatus('synced'); }
             } else { setSyncStatus('synced'); }
+        }
+
+        function salvarLocalmente() {
+            const save = {}; 
+            ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'].forEach(id => { 
+                const el = document.getElementById(id); 
+                if(el && el.value) save[id] = el.value; 
+            });
+            localStorage.setItem('byd_config', JSON.stringify(save));
+            localStorage.setItem('byd_logs_ganhos', JSON.stringify(logsGanhos));
+            localStorage.setItem('byd_recharges', JSON.stringify(logs));
+        }
+
+        function carregarCacheLocal() {
+            const p = JSON.parse(localStorage.getItem('byd_config'));
+            if(p) {
+                Object.keys(p).forEach(id => { 
+                    const el = document.getElementById(id); 
+                    if(el) el.value = p[id]; 
+                });
+            }
+            logsGanhos = JSON.parse(localStorage.getItem('byd_logs_ganhos')) || [];
+            logs = JSON.parse(localStorage.getItem('byd_recharges')) || [];
         }
 
         async function carregarDadosCloud() {
@@ -333,6 +360,7 @@
             const rM = document.getElementById('resFaltaMeta'), rD = document.getElementById('resDiaria');
             if(tG >= fat) { rM.innerText = "META ATINGIDA!"; rD.innerText = `EXCESSO: R$ ${fmt(tG - fat)}`; } else { rM.innerText = `FALTAM R$ ${fmt(fat-tG)}`; rD.innerText = `MÉDIA: R$ ${fmt((fat-tG)/(30-new Date().getDate()+1))}/DIA`; }
             
+            salvarLocalmente();
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => { salvarPerfilCloud(); }, 1000);
         }
