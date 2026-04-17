@@ -265,7 +265,7 @@
                 document.getElementById('app-main').classList.add('hidden');
                 document.getElementById('page-auth').classList.remove('hidden');
                 await auth.signOut(); 
-            } 
+            }
         }
         function switchPage(p) { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); const ab = document.getElementById('nav-'+p); ab.classList.add('nav-active'); ab.classList.remove('text-slate-500'); if(p==='recargas') renderLogs(); calcular(); }
         function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if(e.target.id!=='log-valor') calcular(); }
@@ -273,7 +273,6 @@
         const fmt = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         function calcular() {
-            salvarPerfilCloud();
             const vC = formatToFloat(document.getElementById('vCarro').value), fat = formatToFloat(document.getElementById('faturamento').value), fatAc = formatToFloat(document.getElementById('fatAcumulado').value), fatHoje = formatToFloat(document.getElementById('fatHoje').value);
             const situ = document.getElementById('situacaoVeiculo').value, par = situ === 'quitado' ? 0 : formatToFloat(document.getElementById('parcela').value);
             const seg = formatToFloat(document.getElementById('seguro').value), manu = formatToFloat(document.getElementById('manutencao').value), kmM = parseFloat(document.getElementById('kmMensal').value) || 0, depA = parseFloat(document.getElementById('modeloByd').value);
@@ -284,6 +283,7 @@
             Object.keys(ids).forEach(id => { const el = document.getElementById(id); if(el) el.innerText = `R$ ${fmt(ids[id])}`; });
             const rM = document.getElementById('resFaltaMeta'), rD = document.getElementById('resDiaria');
             if(tG >= fat) { rM.innerText = "META ATINGIDA!"; rD.innerText = `EXCESSO: R$ ${fmt(tG - fat)}`; } else { rM.innerText = `FALTAM R$ ${fmt(fat-tG)}`; rD.innerText = `MÉDIA: R$ ${fmt((fat-tG)/(30-new Date().getDate()+1))}/DIA`; }
+            salvarPerfilCloud();
         }
 
         async function buscarFipe() {
