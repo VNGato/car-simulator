@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BYD Business Suite v6.0</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#020617">
@@ -21,8 +21,8 @@
         .hidden { display: none !important; }
         .nav-active { color: #4f46e5; border-top: 2px solid #4f46e5; background: rgba(79, 70, 229, 0.05); }
         .nav-active svg { color: #4f46e5; filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.5)); }
-        body { padding-bottom: 140px; padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
-        nav { padding-bottom: env(safe-area-inset-bottom) !important; min-height: calc(70px + env(safe-area-inset-bottom)); }
+        body { padding-bottom: 180px; padding-bottom: calc(180px + env(safe-area-inset-bottom)); overflow-y: auto !important; height: auto !important; min-height: 100%; }
+        nav { padding-bottom: env(safe-area-inset-bottom) !important; min-height: calc(75px + env(safe-area-inset-bottom)); }
         @media (min-width: 1024px) { body { padding-bottom: 0; padding-top: 80px; } nav { padding-bottom: 0 !important; min-height: auto; } }
         #historicoLogs::-webkit-scrollbar { width: 4px; }
         #historicoLogs::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
