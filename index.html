@@ -216,20 +216,57 @@
         }
 
         auth.onAuthStateChange(async (ev, s) => {
-            if(s) { currentUser = s.user; document.getElementById('page-auth').classList.add('hidden'); document.getElementById('app-main').classList.remove('hidden'); await carregarDadosCloud(); }
-            else { currentUser = null; document.getElementById('page-auth').classList.remove('hidden'); document.getElementById('app-main').classList.add('hidden'); }
+            if(s) { 
+                currentUser = s.user; 
+                document.getElementById('page-auth').classList.add('hidden'); 
+                document.getElementById('app-main').classList.remove('hidden'); 
+                await carregarDadosCloud(); 
+            } else { 
+                currentUser = null; 
+                document.getElementById('page-auth').classList.remove('hidden'); 
+                document.getElementById('app-main').classList.add('hidden'); 
+            }
         });
 
-        async function salvarPerfilCloud() { if(!currentUser) return; const save = {}; ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'].forEach(id => { const el = document.getElementById(id); if(el) save[id] = el.value; }); await db.from('profiles').upsert({ id: currentUser.id, config: save }); }
-        async function carregarDadosCloud() {
-            if(!currentUser) return;
-            const { data: p } = await db.from('profiles').select('config').eq('id', currentUser.id).single(); if(p?.config) Object.keys(p.config).forEach(id => { const el = document.getElementById(id); if(el) el.value = p.config[id]; });
-            const { data: o } = await db.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); logsGanhos = o || [];
-            const { data: r } = await db.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); logs = r || [];
-            calcular(); renderLogs(); renderGanhos();
+        async function salvarPerfilCloud() { 
+            if(!currentUser) return; 
+            const save = {}; 
+            ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'].forEach(id => { 
+                const el = document.getElementById(id); 
+                if(el && el.value) save[id] = el.value; 
+            }); 
+            if(Object.keys(save).length > 0) {
+                const { error } = await db.from('profiles').upsert({ id: currentUser.id, config: save });
+                if(error) console.warn("Erro Sincronia Perfil:", error.message);
+            }
         }
 
-        async function encerrarSessao() { if(confirm("Deseja realmente sair do Cockpit?")) { await auth.signOut(); } }
+        async function carregarDadosCloud() {
+            if(!currentUser) return;
+            try {
+                const { data: p, error: pErr } = await db.from('profiles').select('config').eq('id', currentUser.id).single(); 
+                if(p?.config) {
+                    Object.keys(p.config).forEach(id => { 
+                        const el = document.getElementById(id); 
+                        if(el && p.config[id]) el.value = p.config[id]; 
+                    });
+                }
+                const { data: o } = await db.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); 
+                logsGanhos = o || [];
+                const { data: r } = await db.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); 
+                logs = r || [];
+                
+                calcular(); renderLogs(); renderGanhos();
+            } catch (err) { console.error("Erro ao carregar dados:", err); }
+        }
+
+        async function encerrarSessao() { 
+            if(confirm("Deseja realmente sair do Cockpit?")) { 
+                document.getElementById('app-main').classList.add('hidden');
+                document.getElementById('page-auth').classList.remove('hidden');
+                await auth.signOut(); 
+            } 
+        }
         function switchPage(p) { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); const ab = document.getElementById('nav-'+p); ab.classList.add('nav-active'); ab.classList.remove('text-slate-500'); if(p==='recargas') renderLogs(); calcular(); }
         function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if(e.target.id!=='log-valor') calcular(); }
         function formatToFloat(s) { if (!s) return 0; return parseFloat(s.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0; }
