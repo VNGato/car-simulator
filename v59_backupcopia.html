@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BYD Business Suite v5.9</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#020617">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --coral-400: #fb7185;
+            --coral-500: #f43f5e;
+            --coral-600: #e11d48;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .view-content { animation: fadeIn 0.4s ease-out; }
+        .hidden { display: none !important; }
+        
+        .nav-active { color: #4f46e5; border-top: 2px solid #4f46e5; background: rgba(79, 70, 229, 0.05); }
+        .nav-active svg { color: #4f46e5; filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.5)); }
+
+        /* Ajustes para a nova navegação */
+        body { padding-bottom: 80px; } /* Espaço para a barra inferior no mobile */
+        @media (min-width: 1024px) {
+            body { padding-bottom: 0; padding-top: 80px; }
+        }
+
+        #historicoLogs::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #historicoLogs::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .card-glow {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-200 font-sans p-2 md:p-8">
+
+        <div class="max-w-6xl mx-auto overflow-x-hidden">
+        <header
+            class="mb-8 bg-slate-900 p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">BYD BUSINESS <span
+                        class="text-green-500 text-xs">v5.9</span></h1>
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Gestão de Ativos & Eficiência
+                </p>
+            </div>
+            <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-t border-slate-800 lg:top-0 lg:bottom-auto lg:border-t-0 lg:border-b flex justify-around items-center px-2 py-3 lg:py-0 overflow-x-auto no-scrollbar shadow-2xl">
+                <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all nav-active group min-w-[60px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Painel</span>
+                </button>
+                <button onclick="switchPage('capital')" id="nav-capital" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Capital</span>
+                </button>
+                <button onclick="switchPage('operacao')" id="nav-operacao" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Operação</span>
+                </button>
+                <button onclick="switchPage('custos')" id="nav-custos" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Custo</span>
+                </button>
+                <button onclick="switchPage('recargas')" id="nav-recargas" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Recarga</span>
+                </button>
+                <button onclick="switchPage('extrato')" id="nav-extrato" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Extrato</span>
+                </button>
+            </nav>
+        </header>
+
+        <div id="page-dashboard" class="view-content active max-w-7xl mx-auto space-y-6">
+             <div class="relative bg-slate-900/20 rounded-3xl border border-slate-800/50 p-4 transition-all duration-500 overflow-hidden">
+                <div class="flex justify-between items-center px-2 mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Painel Operacional</span>
+                    </div>
+                </div>
+
+                <div id="gridDashboard" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div id="cardFatTotal" class="group relative bg-gradient-to-br from-indigo-950/20 to-slate-950 p-6 rounded-3xl border border-indigo-900/10 shadow-2xl flex flex-col cursor-help overflow-hidden">
+                        <span id="statusFaturamento" class="self-start text-indigo-400 font-black text-[8px] italic bg-indigo-900/30 px-2 py-0.5 rounded mb-3 uppercase tracking-widest tracking-widest">Faturamento</span>
+                        <h2 class="text-indigo-400 text-[10px] font-black uppercase mb-1">Total Gerado</h2>
+                        <div id="resFatTotal" class="text-2xl md:text-3xl font-black text-indigo-300 italic transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                        <div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-indigo-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                            <div class="text-[8px] text-indigo-300 uppercase font-black mb-2 tracking-tighter">Deduções Operacionais</div>
+                            <div id="detEnergia" class="text-xs text-white font-black italic drop-shadow-lg">Energia: R$ 0,00</div>
+                            <div id="detSeguro" class="text-xs text-indigo-200 font-black italic drop-shadow-lg">Seguro: R$ 0,00</div>
+                            <div id="detManut" class="text-xs text-indigo-300/80 font-black italic drop-shadow-lg hidden">Manutenção: R$ 0,00</div>
+                        </div>
+                    </div>
+                    <div id="cardOperacional" class="group relative bg-gradient-to-br from-blue-950/10 to-slate-950 p-6 rounded-3xl border border-blue-900/10 shadow-2xl flex flex-col cursor-help overflow-hidden">
+                        <span id="statusOperacional" class="self-start text-blue-900/40 font-black text-[8px] italic bg-blue-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest tracking-widest">Operação</span>
+                        <h2 class="text-blue-400 text-[10px] font-black uppercase mb-1">Ganho de Trabalho</h2>
+                        <div id="resOperacional" class="text-2xl md:text-3xl font-black text-blue-300 italic transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                        <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-blue-500/20 rounded-3xl pointer-events-none scale-105 group-hover:scale-100">
+                            <div class="text-[8px] text-blue-300 uppercase font-black mb-2 tracking-tighter">Custo de Capital</div>
+                            <div id="detParcela" class="text-xs text-white font-black italic drop-shadow-lg scale-110">Parcela: R$ 0,00</div>
+                        </div>
+                    </div>
+                    <div id="cardCaixa" class="group relative bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col cursor-help overflow-hidden">
+                        <span id="statusCaixa" class="self-start text-slate-800 font-black text-[8px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-3 uppercase tracking-widest tracking-widest">Caixa</span>
+                        <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso</h2>
+                        <div id="resCaixa" class="text-2xl md:text-3xl font-black text-white transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-slate-700/50 rounded-3xl pointer-events-none scale-105 group-hover:scale-100 p-4">
+                            <div class="text-[8px] text-slate-500 uppercase font-black mb-3 tracking-widest border-b border-slate-800 pb-1 w-full text-center">Reservas de Capital</div>
+                            <div class="text-center mb-3">
+                                <div class="text-[7px] text-slate-400 uppercase font-bold mb-0.5">Desvalorização</div>
+                                <div id="detDepreciacao" class="text-xs text-red-500 font-black italic">R$ 0,00</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-[7px] text-indigo-400 uppercase font-bold mb-0.5">Fundo Manutenção</div>
+                                <div id="detManutReserva" class="text-xs text-indigo-300 font-black italic">R$ 0,00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cardReal" class="group bg-gradient-to-br from-green-950/10 to-slate-950 p-6 rounded-3xl border border-green-900/20 shadow-2xl flex flex-col overflow-hidden">
+                        <span id="statusReal" class="self-start text-green-900/20 font-black text-[8px] italic bg-green-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest tracking-widest">Real</span>
+                        <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Patrimonial Final</h2>
+                        <div id="resReal" class="text-2xl md:text-3xl font-black text-green-400 transition-all group-hover:scale-105 origin-left">R$ 0,00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="statusMeta" class="p-8 bg-slate-950 rounded-3xl border border-slate-800 text-center relative overflow-hidden transition-all">
+                <div class="text-[10px] text-slate-600 font-black uppercase mb-2 tracking-[0.2em]">Foco na Meta</div>
+                <div id="resFaltaMeta" class="text-3xl font-black text-blue-400 uppercase">Aguardando Dados</div>
+                <div id="resDiaria" class="text-[10px] text-slate-500 mt-2 uppercase font-bold italic tracking-wider">Configure sua operação semanal</div>
+            </div>
+        </div>
+
+        <div id="page-operacao" class="view-content hidden max-w-xl mx-auto py-4">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
+                <h2 class="text-green-500 font-black text-xs uppercase tracking-[0.3em] mb-4 flex items-center gap-3 italic">📈 Operação Mensal</h2>
+                
+                <div class="space-y-4">
+                    <label class="block">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Meta Mensal de Faturamento (R$)</span>
+                        <input type="text" id="faturamento" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                            class="w-full bg-slate-800 rounded-xl p-3 md:p-4 mt-1 outline-none text-green-400 font-black text-xl md:text-2xl border border-slate-700 focus:border-green-500/50 transition-all">
+                    </label>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="block">
+                            <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Acumulado Mês</span>
+                            <input type="text" id="fatAcumulado" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                                class="w-full bg-slate-800 rounded-xl p-3 mt-1 outline-none text-white font-bold border border-slate-700">
+                        </label>
+                        <label class="block italic">
+                            <span class="text-[10px] text-green-500 uppercase font-bold tracking-widest">Hoje</span>
+                            <input type="text" id="fatHoje" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00" readonly
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mt-1 outline-none text-green-300 font-black opacity-75">
+                        </label>
+                    </div>
+
+                    <div class="bg-slate-950 rounded-2xl p-4 md:p-6 border border-slate-800 space-y-4 shadow-inner">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Lançar Registro</span>
+                            <div class="flex gap-1 bg-slate-900/50 p-1 rounded-lg border border-slate-800 w-full sm:w-auto">
+                                <button onclick="setTipo('ganho')" id="btnTipoGanho" class="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-[8px] font-black uppercase transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/20">Ganho</button>
+                                <button onclick="setTipo('custo')" id="btnTipoCusto" class="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-[8px] font-black uppercase transition-all text-slate-500 hover:text-coral-400">Custo</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+                            <input type="text" id="valCorrida" oninput="mascaraMoeda(event)" inputmode="decimal" onkeydown="if(event.key==='Enter') adicionarCorrida()" placeholder="R$ 0,00"
+                                class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none text-white font-black text-base md:text-lg focus:border-blue-500/50 transition-all min-w-0">
+                            <button id="btnAdd" onclick="adicionarCorrida()" class="w-full sm:w-auto px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black transition-all shadow-lg shadow-blue-600/20">+</button>
+                        </div>
+                        <div id="feedCorridas" class="grid grid-cols-2 sm:grid-cols-4 gap-2 transition-all duration-300">
+                        </div>
+                    </div>
+
+                    <button onclick="salvarGanho()"
+                        class="w-full py-4 bg-green-600/10 hover:bg-green-600 text-green-400 hover:text-white font-black rounded-xl border border-green-600/20 transition-all shadow-lg shadow-green-600/10 uppercase tracking-widest text-[10px]">✓
+                        Salvar Ganho de Hoje</button>
+
+                    <button onclick="limparCamposDashboard()"
+                        class="w-full py-2 text-[8px] font-black uppercase text-slate-600 border border-slate-800 rounded-lg hover:bg-red-500 hover:text-white transition-all italic mt-4 opacity-50">↻
+                        Resetar Projeto</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-custos" class="view-content hidden max-w-xl mx-auto py-4">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
+                <h2 class="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3">🛠️ Custos Variáveis</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="flex justify-between items-center text-[10px] text-slate-400 uppercase font-black tracking-widest">
+                            <span>Energia / Fuel</span>
+                            <span id="logIndicator" class="hidden text-green-400 text-[8px] px-2 py-0.5 bg-green-950 rounded border border-green-500/20">GASTO REAL ATIVO</span>
+                        </label>
+                        <input type="text" id="energiaManual" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                            class="w-full bg-slate-800 rounded-xl p-3 text-blue-400 font-black border border-slate-700 outline-none focus:border-indigo-500/50 transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Seguro Mensal</label>
+                        <input type="text" id="seguro" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                            class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none focus:border-indigo-500/50 transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Reserva de Manutenção</label>
+                        <input type="text" id="manutencao" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                            class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none focus:border-indigo-500/50 transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">KM Trabalhado (Mês)</label>
+                        <input type="number" id="kmMensal" oninput="calcular()" placeholder="0"
+                            class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none focus:border-indigo-500/50 transition-all">
+                    </div>
+                </div>
+
+                <div class="p-6 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-slate-500 uppercase font-black italic tracking-widest">Custo Operacional por KM</span>
+                        <div id="resCPK" class="text-3xl font-black text-white font-mono">R$ 0,00</div>
+                    </div>
+                    <div id="statusTag" class="px-5 py-2 rounded-lg font-black text-[9px] uppercase shadow-xl tracking-tighter">CALCULANDO...</div>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-capital" class="view-content hidden max-w-xl mx-auto py-4">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
+                <h2 class="text-blue-500 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3">💰 Gestão de Capital</h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="block">
+                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Modelo BYD</span>
+                        <select id="modeloByd" onchange="calcular()"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none appearance-none">
+                            <option value="0.14">Dolphin Mini (14%)</option>
+                            <option value="0.12">Dolphin GS (12%)</option>
+                            <option value="0.13">Dolphin Plus (13%)</option>
+                            <option value="0.15">Yuan Pro (15%)</option>
+                            <option value="0.16">Yuan Plus (16%)</option>
+                            <option value="0.17">Song Plus (17%)</option>
+                            <option value="0.16">King (16%)</option>
+                            <option value="0.18">Seal (18%)</option>
+                            <option value="0.20">Han (20%)</option>
+                            <option value="0.22">Tan (22%)</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Ano</span>
+                        <select id="anoModelo" onchange="calcular()"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none">
+                            <option value="32000">Zero KM (Atual)</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </label>
+                </div>
+
+                <button onclick="buscarFipe()" id="btnFipe" class="w-full py-4 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white text-[9px] font-black uppercase rounded-xl border border-blue-600/20 transition-all italic tracking-widest">🔍 Consultar Valor Real na Tabela FIPE</button>
+
+                <div class="h-px bg-slate-800"></div>
+
+                <div id="statusCapital" class="hidden p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-center">
+                    <span class="text-[9px] text-green-400 font-black uppercase italic tracking-widest">✓ Propriedade Integral / Veículo Quitado</span>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="block">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Valor de Mercado do Carro (R$)</span>
+                        <input type="text" id="vCarro" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                            class="w-full bg-slate-800 rounded-xl p-4 mt-1 text-white font-black text-xl border border-slate-700">
+                    </label>
+
+                    <label class="block">
+                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Situação de Pagamento</span>
+                        <select id="situacaoVeiculo" onchange="calcular()"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none">
+                            <option value="quitado">Propriedade Integral (Quitado)</option>
+                            <option value="parcelado">Financiado (Em Parcelas)</option>
+                        </select>
+                    </label>
+
+                    <div id="secaoDivida" class="p-6 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
+                        <label class="block">
+                            <span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Valor da Entrada (R$)</span>
+                            <input type="text" id="vEntrada" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                                class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-blue-400 font-black border border-slate-700">
+                        </label>
+                        <div class="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-600">
+                            <span>Total Financiado:</span>
+                            <span id="resFinanciado" class="text-xs text-slate-300">R$ 0,00</span>
+                        </div>
+                        <label class="block">
+                            <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Valor da Parcela Mensal (R$)</span>
+                            <input type="text" id="parcela" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                                class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-black border border-slate-700">
+                        </label>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-extrato" class="view-content hidden max-w-xl mx-auto py-4">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-slate-500 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3">📜 Extrato Mensal</h2>
+                    <span id="contDias" class="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[8px] border border-green-500/20 font-black">0 DIAS TRABALHADOS</span>
+                </div>
+                
+                <div id="listaGanhos" class="grid grid-cols-2 gap-4">
+                </div>
+
+                <div class="pt-8 border-t border-slate-800">
+                    <button onclick="limparGanhos()" class="w-full py-4 text-[9px] font-black text-red-500/50 hover:bg-red-500/10 hover:text-red-500 uppercase italic border border-red-500/10 rounded-xl transition-all">⚠️ Resetar Todo o Histórico do Mês</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-recargas" class="view-content hidden max-w-md mx-auto py-4">
+            <section class="bg-slate-900 p-4 md:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
+                <div class="flex justify-between items-center bg-blue-500/5 p-3 rounded-2xl border border-blue-500/10">
+                    <h2 class="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em] italic">🔋 Registro de Energização</h2>
+                    <span id="contCargas" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[7px] font-black uppercase">0 Cargas</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">Quanto custou?</span>
+                        <input type="text" id="log-valor" oninput="mascaraMoeda(event)" inputmode="decimal" placeholder="R$ 0,00"
+                            class="w-full bg-slate-800 rounded-xl p-4 font-black text-2xl text-white outline-none border border-slate-700">
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">KM atual do painel</span>
+                        <input type="number" id="log-km" placeholder="000000"
+                            class="w-full bg-slate-800 rounded-xl p-4 font-black text-2xl text-white outline-none border border-slate-700">
+                    </div>
+                    <button onclick="salvarLog()" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black uppercase text-white shadow-xl shadow-blue-900/20 transition-all text-sm tracking-widest">Salvar Carga no Banco</button>
+                </div>
+
+                <div class="pt-6 border-t border-slate-800">
+                    <div id="historicoLogs" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 no-scrollbar"></div>
+                    <button onclick="limparLogs()" class="w-full text-red-900/40 hover:text-red-600 text-[8px] font-black uppercase py-4 transition-all italic mt-4">⚠️ Limpar Banco de Dados de Cargas</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let logs = JSON.parse(localStorage.getItem('byd_logs')) || [];
+        let logsGanhos = JSON.parse(localStorage.getItem('byd_logs_ganhos')) || [];
+        let corridasDia = JSON.parse(localStorage.getItem('byd_corridas_dia')) || [];
+        let tipoLancamento = 'ganho';
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('nav-active', 'text-indigo-400');
+                btn.classList.add('text-slate-500');
+            });
+            const activeBtn = document.getElementById('nav-' + pageId);
+            activeBtn.classList.add('nav-active');
+            activeBtn.classList.remove('text-slate-500');
+            if (pageId === 'recargas') renderLogs();
+            calcular();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchTab(t) {
+            if (t === 'log') switchPage('recargas');
+            else switchPage('dashboard');
+        }
+
+        function mascaraMoeda(event) {
+            let value = event.target.value.replace(/\D/g, "");
+            const result = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(value) / 100);
+            event.target.value = value ? "R$ " + result : "";
+            if (event.target.id !== 'log-valor') calcular();
+        }
+
+        function formatToFloat(valorStr) {
+            if (!valorStr) return 0;
+            return parseFloat(valorStr.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0;
+        }
+
+        const fmt = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        function calcular() {
+            const campos = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'];
+            const save = {};
+            campos.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) save[id] = el.value;
+            });
+            localStorage.setItem('byd_simulador_save', JSON.stringify(save));
+
+            const vC = formatToFloat(save.vCarro), vE = formatToFloat(save.vEntrada), fat = formatToFloat(save.faturamento);
+            const fatAcum = formatToFloat(save.fatAcumulado), fatHoje = formatToFloat(save.fatHoje);
+            const situacao = document.getElementById('situacaoVeiculo').value;
+            const par = (situacao === 'quitado') ? 0 : formatToFloat(save.parcela);
+            const seg = formatToFloat(save.seguro), manut = formatToFloat(save.manutencao), kmM = parseFloat(save.kmMensal) || 0;
+            const depA = parseFloat(save.modeloByd);
+
+            let cEnergiaReal = 0;
+            let custosExtrasDia = 0;
+            corridasDia.filter(c => c.t === 'custo').forEach(c => custosExtrasDia += c.v);
+            logs.forEach(l => cEnergiaReal += l.valor);
+
+            const logInd = document.getElementById('logIndicator');
+            const eInput = document.getElementById('energiaManual');
+
+            let cEnergiaFinal = 0;
+            if (logs.length > 0) {
+                cEnergiaFinal = cEnergiaReal + custosExtrasDia;
+                if(logInd) {
+                    logInd.classList.remove('hidden');
+                    logInd.innerText = "GASTO REAL ATIVO";
+                }
+                if (eInput && document.activeElement !== eInput) {
+                    eInput.value = "R$ " + fmt(cEnergiaFinal);
+                    eInput.classList.add('bg-blue-900/20', 'border-blue-500/30', 'text-blue-400');
+                    eInput.readOnly = true;
+                }
+            } else {
+                cEnergiaFinal = formatToFloat(save.energiaManual) + custosExtrasDia;
+                if(logInd) logInd.classList.add('hidden');
+                if (eInput) {
+                    eInput.classList.remove('bg-blue-900/20', 'border-blue-500/30', 'text-blue-400');
+                    eInput.readOnly = false;
+                }
+            }
+
+            const ganhoTotalReal = fatAcum + fatHoje;
+            const superouMeta = ganhoTotalReal > fat;
+            const faturamentoFinal = superouMeta ? ganhoTotalReal : fat;
+
+            const depM = (vC * depA) / 12;
+            const operacional = faturamentoFinal - seg - cEnergiaFinal;
+            const caixa = operacional - par;
+            const real = caixa - depM - manut;
+            const cpkT = (kmM > 0) ? (par + seg + manut + cEnergiaFinal + depM) / kmM : 0;
+
+            const resFin = document.getElementById('resFinanciado');
+            if(resFin) resFin.innerText = `R$ ${fmt(vC - vE)}`;
+
+            const secaoDivida = document.getElementById('secaoDivida');
+            const statusCapital = document.getElementById('statusCapital');
+            if (situacao === 'quitado') {
+                if(secaoDivida) secaoDivida.style.display = 'none';
+                if(statusCapital) statusCapital.style.display = 'block';
+            } else {
+                if(secaoDivida) secaoDivida.style.display = 'block';
+                if(statusCapital) statusCapital.style.display = 'none';
+            }
+
+            const ids = { 'resFatTotal': faturamentoFinal, 'resOperacional': operacional, 'resCaixa': caixa, 'resReal': real, 'resCPK': cpkT };
+            Object.keys(ids).forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerText = `R$ ${fmt(ids[id])}`; });
+            
+            if(document.getElementById('detEnergia')) document.getElementById('detEnergia').innerText = `Energia: R$ ${fmt(cEnergiaFinal)}`;
+            if(document.getElementById('detSeguro')) document.getElementById('detSeguro').innerText = `Seguro: R$ ${fmt(seg)}`;
+            if(document.getElementById('detParcela')) document.getElementById('detParcela').innerText = `Parcela: R$ ${fmt(par)}`;
+            if(document.getElementById('detDepreciacao')) document.getElementById('detDepreciacao').innerText = `R$ ${fmt(depM)}`;
+            if(document.getElementById('detManutReserva')) document.getElementById('detManutReserva').innerText = `R$ ${fmt(manut)}`;
+
+            const resMeta = document.getElementById('resFaltaMeta'), resDiaria = document.getElementById('resDiaria');
+            if (resMeta) {
+                if (superouMeta) {
+                    resMeta.innerText = "META MENSAL ATINGIDA!";
+                    resDiaria.innerText = `EXCESSO: R$ ${fmt(ganhoTotalReal - fat)}`;
+                } else {
+                    resMeta.innerText = `FALTAM R$ ${fmt(fat - ganhoTotalReal)}`;
+                    resDiaria.innerText = `Média Necessária: R$ ${fmt((fat - ganhoTotalReal) / (30 - new Date().getDate() + 1))}/dia`;
+                }
+            }
+        }
+
+        function setTipo(t) {
+            tipoLancamento = t;
+            const bG = document.getElementById('btnTipoGanho'), bC = document.getElementById('btnTipoCusto');
+            if (t === 'ganho') {
+                bG.className = "px-4 py-1 rounded-md text-[8px] font-black uppercase bg-blue-600 text-white shadow-lg shadow-blue-600/20";
+                bC.className = "px-4 py-1 rounded-md text-[8px] font-black uppercase text-slate-500 hover:text-coral-400";
+            } else {
+                bC.className = "px-4 py-1 rounded-md text-[8px] font-black uppercase bg-red-600 text-white shadow-lg shadow-red-600/20";
+                bG.className = "px-4 py-1 rounded-md text-[8px] font-black uppercase text-slate-500 hover:text-slate-300";
+            }
+        }
+
+         function adicionarCorrida() {
+             const input = document.getElementById('valCorrida');
+             const valor = formatToFloat(input.value);
+             if (valor <= 0) return;
+             corridasDia.unshift({ v: valor, t: tipoLancamento });
+             localStorage.setItem('byd_corridas_dia', JSON.stringify(corridasDia));
+             input.value = "";
+             renderCorridas();
+             calcular();
+         }
+
+        function removerCorrida(index) {
+            corridasDia.splice(index, 1);
+            localStorage.setItem('byd_corridas_dia', JSON.stringify(corridasDia));
+            renderCorridas();
+            calcular();
+        }
+
+        function renderCorridas() {
+            const feed = document.getElementById('feedCorridas');
+            const fatHojeInput = document.getElementById('fatHoje');
+            if(!feed) return;
+            feed.innerHTML = "";
+            let totalG = 0;
+            corridasDia.forEach((c, i) => {
+                const isGanho = c.t === 'ganho';
+                if (isGanho) totalG += c.v;
+                else totalG -= c.v;
+                const item = `
+                    <div class="${isGanho ? 'bg-blue-600/10 border-blue-500/20' : 'bg-red-600/10 border-red-500/20'} border px-2 py-2.5 rounded-xl flex items-center justify-between gap-1 group transition-all hover:scale-[1.02]">
+                        <span class="text-[9px] font-black ${isGanho ? 'text-blue-400' : 'text-red-400'} italic truncate">${isGanho ? '' : '-'} R$ ${fmt(c.v)}</span>
+                        <button onclick="removerCorrida(${i})" class="${isGanho ? 'text-blue-900' : 'text-red-900/50'} border-none hover:text-white transition-colors text-[10px] font-bold px-1">×</button>
+                    </div>
+                `;
+                feed.innerHTML += item;
+            });
+            if(fatHojeInput) fatHojeInput.value = totalG !== 0 ? "R$ " + fmt(totalG) : "";
+        }
+
+        function salvarGanho() {
+            if (corridasDia.length === 0) return alert("Lance pelo menos uma operação (Ganho ou Custo) antes de salvar.");
+            
+            let totalHoje = 0;
+            corridasDia.forEach(c => {
+                if (c.t === 'ganho') totalHoje += c.v;
+                else totalHoje -= c.v;
+            });
+
+            // Atualizar Acumulado Geral
+            const inputAcum = document.getElementById('fatAcumulado');
+            const vA = formatToFloat(inputAcum.value);
+            const novoTotal = vA + totalHoje;
+            inputAcum.value = "R$ " + fmt(novoTotal);
+
+            // Adicionar ao Histórico (Extrato)
+            const dataStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            logsGanhos.unshift({ data: dataStr, valor: totalHoje });
+            localStorage.setItem('byd_logs_ganhos', JSON.stringify(logsGanhos));
+
+            // Limpar Operações de Hoje
+            corridasDia = [];
+            localStorage.removeItem('byd_corridas_dia');
+            renderCorridas();
+            renderGanhos();
+            calcular();
+            
+            alert(`✓ Operação de R$ ${fmt(totalHoje)} salva no histórico e acumulado!`);
+            switchPage('extrato');
+        }
+
+        function salvarLog() {
+            const valInput = document.getElementById('log-valor');
+            const kmInput = document.getElementById('log-km');
+            const v = formatToFloat(valInput.value);
+            const k = parseInt(kmInput.value);
+            
+            if (!v || !k) return alert("Preencha o Valor da Recarga e o KM Atual do Painel");
+            
+            logs.unshift({ 
+                data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }), 
+                valor: v, 
+                km: k 
+            });
+            
+            localStorage.setItem('byd_logs', JSON.stringify(logs));
+            valInput.value = ""; 
+            kmInput.value = "";
+            
+            renderLogs(); 
+            calcular();
+            alert("✓ Recarga salva com sucesso no banco de dados!");
+        }
+
+        async function buscarFipe() {
+            const btn = document.getElementById('btnFipe');
+            const modSel = document.getElementById('modeloByd');
+            const modelText = modSel.options[modSel.selectedIndex].text.split('(')[0].trim();
+            const anoSel = document.getElementById('anoModelo');
+            const anoText = anoSel.options[anoSel.selectedIndex].text.split('(')[0].trim();
+            
+            // Mapeamento de IDs FIPE para Modelos BYD (Marca 238)
+            const fipeModels = {
+                "Dolphin Mini": 10986,
+                "Dolphin GS": 10813,
+                "Dolphin Plus": 10878,
+                "Yuan Pro": 11199,
+                "Yuan Plus": 10184,
+                "Song Plus": 11084,
+                "King": 11079,
+                "Seal": 10833,
+                "Han": 9860,
+                "Tan": 9775
+            };
+
+            const modelId = fipeModels[modelText];
+            if (!modelId) return alert("Modelo não mapeado para consulta FIPE automática.");
+
+            // Identificar sufixo de combustível (-4 Elétrico, -6 Híbrido)
+            const isHybrid = modelText.includes("Song") || modelText.includes("King");
+            const suffix = isHybrid ? "6" : "4";
+            
+            // Determinar o código do ano
+            let yearCode = "";
+            if (anoText === "Zero KM") yearCode = `32000-${suffix}`;
+            else if (anoText === "2026") yearCode = `2026-${suffix}`;
+            else if (anoText === "2025") yearCode = `2025-${suffix}`;
+            else if (anoText === "2024") yearCode = `2024-${suffix}`;
+            else if (anoText === "2023") yearCode = `2023-${suffix}`;
+            else yearCode = `${anoText}-${suffix}`;
+
+            btn.innerText = "⏳ Consultando Fipe...";
+            btn.disabled = true;
+
+            try {
+                const url = `https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos/${modelId}/anos/${yearCode}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`A combinação de Modelo/Ano não foi encontrada para este veículo.`);
+                }
+
+                const data = await response.json();
+                
+                if (data && data.Valor) {
+                    // Preencher o campo com o valor formatado da FIPE
+                    document.getElementById('vCarro').value = data.Valor;
+                    
+                    // Recalcular o dashboard
+                    calcular();
+                    
+                    alert(`✓ Tabela FIPE Sucesso!\n\nModelo: ${data.Modelo}\nAno: ${data.AnoModelo}\nValor: ${data.Valor}\nRef: ${data.MesReferencia}`);
+                } else {
+                    throw new Error("A API não retornou um valor válido para esta consulta.");
+                }
+            } catch (e) {
+                alert("Erro ao buscar Fipe: " + e.message + "\n\nVocê pode inserir o valor manualmente.");
+            } finally {
+                btn.innerText = "🔍 Consultar valor real na Tabela FIPE";
+                btn.disabled = false;
+            }
+        }
+
+        function renderGanhos() {
+            const container = document.getElementById('listaGanhos');
+            const cont = document.getElementById('contDias');
+            container.innerHTML = "";
+            
+            cont.innerText = `${logsGanhos.length} DIAS TRABALHADOS`;
+
+            if (logsGanhos.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-4 text-center text-[10px] text-slate-700 italic uppercase">Nenhum ganho registrado neste mês</div>`;
+                return;
+            }
+            logsGanhos.forEach(g => {
+                container.innerHTML += `
+                    <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex flex-col justify-center items-center shadow-inner">
+                        <span class="text-[7px] text-slate-600 font-bold">${g.data}</span>
+                        <span class="text-xs font-black text-green-500 italic">R$ ${fmt(g.valor)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function renderLogs() {
+            const h = document.getElementById('historicoLogs'); 
+            const cont = document.getElementById('contCargas');
+            h.innerHTML = "";
+            
+            cont.innerText = `${logs.length} CARGAS`;
+
+            logs.forEach((l, i) => {
+                let e = ""; if (logs[i + 1]) { const d = l.km - logs[i + 1].km; if (d > 0) e = `<span class="text-blue-500 font-bold">R$ ${(l.valor / d).toFixed(2)}/km</span>`; }
+                h.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center mb-2"><div><p class="text-[8px] text-slate-500 font-black">${l.data}</p><p class="text-lg font-black">R$ ${l.valor.toFixed(2)}</p></div><div class="text-right"><p class="text-[8px] text-slate-500">KM ${l.km}</p>${e}</div></div>`;
+            });
+        }
+
+        function exportarDados() {
+            const b = {
+                config: JSON.parse(localStorage.getItem('byd_simulador_save')),
+                logs: logs,
+                ganhos: logsGanhos
+            };
+            const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(b));
+            const a = document.createElement('a'); a.href = d; a.download = "backup_byd.json"; a.click();
+        }
+
+        function importarDados(e) {
+            const reader = new FileReader();
+            reader.onload = (ex) => {
+                const b = JSON.parse(ex.target.result);
+                localStorage.setItem('byd_simulador_save', JSON.stringify(b.config));
+                localStorage.setItem('byd_logs', JSON.stringify(b.logs));
+                localStorage.setItem('byd_logs_ganhos', JSON.stringify(b.ganhos || []));
+                location.reload();
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        function limparCamposDashboard() { if (confirm("Resetar TODA a Simulação e Metas?")) { localStorage.removeItem('byd_simulador_save'); localStorage.removeItem('byd_logs_ganhos'); location.reload(); } }
+        function limparLogs() { if (confirm("Apagar Histórico de Cargas?")) { localStorage.removeItem('byd_logs'); logs = []; renderLogs(); calcular(); } }
+        function limparGanhos() { if (confirm("Apagar Histórico de Ganhos?")) { localStorage.removeItem('byd_logs_ganhos'); logsGanhos = []; renderGanhos(); calcular(); } }
+
+        function carregarDados() {
+            const save = JSON.parse(localStorage.getItem('byd_simulador_save')) || {};
+            const campos = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'];
+            
+            campos.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && save[id] !== undefined) {
+                    el.value = save[id];
+                }
+            });
+
+            calcular();
+            renderLogs();
+            renderGanhos();
+            renderCorridas();
+        }
+
+        // Registro do Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registrado!', reg))
+                    .catch(err => console.log('Erro no SW', err));
+            });
+        }
+
+        carregarDados();
+        renderGanhos();
+    </script>
+</body>
+
+</html>
