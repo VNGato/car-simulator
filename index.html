@@ -10,6 +10,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --coral-400: #fb7185; --coral-500: #f43f5e; --coral-600: #e11d48; }
@@ -39,8 +42,8 @@
             </div>
             <div id="auth-error" class="hidden text-[10px] uppercase font-black text-center tracking-widest p-4 rounded-xl border"></div>
             <div class="space-y-4">
-                <div class="space-y-2"><label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">E-mail</label><input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 outline-none text-white focus:border-indigo-500/50 transition-all font-bold"></div>
-                <div class="space-y-2"><label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">Senha</label><input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 outline-none text-white focus:border-indigo-500/50 transition-all font-bold"></div>
+                <div class="space-y-2"><label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">E-mail</label><input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 outline-none text-white focus:border-indigo-500/50 transition-all font-bold" autocomplete="off"></div>
+                <div class="space-y-2"><label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">Senha</label><input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 outline-none text-white focus:border-indigo-500/50 transition-all font-bold" autocomplete="off"></div>
                 <button onclick="handleAuth()" id="btn-auth" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-[10px]">Entrar no Cockpit</button>
             </div>
             <div class="text-center pt-4 border-t border-slate-800">
@@ -52,8 +55,8 @@
     <div id="app-main" class="hidden max-w-6xl mx-auto overflow-x-hidden">
         <header class="mb-8 bg-slate-900 p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">BYD BUSINESS <span class="text-green-500 text-xs">v6.0</span></h1>
-                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Gestão de Ativos & Eficiência</p>
+                <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">BYD BUSINESS <span class="text-green-500 text-xs">v6.0</span> <span id="sync-status" class="ml-2 text-[8px] font-bold uppercase tracking-widest text-slate-500">☁️ Sincronizado</span></h1>
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold" autocomplete="off">Gestão de Ativos & Eficiência</p>
             </div>
             <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-t border-slate-800 lg:top-0 lg:bottom-auto lg:border-t-0 lg:border-b flex justify-around items-center px-2 py-3 lg:py-0 overflow-x-auto no-scrollbar shadow-2xl">
                 <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all nav-active group min-w-[60px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Painel</span></button>
@@ -112,11 +115,11 @@
                 </div>
                 <button onclick="buscarFipe()" id="btnFipe" class="w-full py-4 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white text-[9px] font-black uppercase rounded-xl border border-blue-600/20 transition-all italic tracking-widest">🔍 Consultar Valor Real na Tabela FIPE</button>
                 <div class="space-y-4">
-                    <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Valor de Mercado do Carro (R$)</span><input type="text" id="vCarro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 mt-1 text-white font-black text-xl border border-slate-700"></label>
+                    <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Valor de Mercado do Carro (R$)</span><input type="text" id="vCarro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 mt-1 text-white font-black text-xl border border-slate-700" autocomplete="off"></label>
                     <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Situação de Pagamento</span><select id="situacaoVeiculo" onchange="calcular()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="quitado">Propriedade Integral (Quitado)</option><option value="parcelado">Financiado (Em Parcelas)</option></select></label>
                     <div id="secaoDivida" class="hidden p-6 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
-                        <label class="block"><span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Valor da Entrada (R$)</span><input type="text" id="vEntrada" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-blue-400 font-black border border-slate-700"></label>
-                        <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Valor da Parcela Mensal (R$)</span><input type="text" id="parcela" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-black border border-slate-700"></label>
+                        <label class="block"><span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Valor da Entrada (R$)</span><input type="text" id="vEntrada" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-blue-400 font-black border border-slate-700" autocomplete="off"></label>
+                        <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Valor da Parcela Mensal (R$)</span><input type="text" id="parcela" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-black border border-slate-700" autocomplete="off"></label>
                     </div>
                 </div>
             </section>
@@ -129,7 +132,7 @@
                 <div class="space-y-4">
                     <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Meta Mensal de Faturamento (R$)</span><input type="text" id="faturamento" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 mt-1 text-green-400 font-black text-2xl border border-slate-700 outline-none focus:border-green-500/50"></label>
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Acumulado Mês</span><input type="text" id="fatAcumulado" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-bold border border-slate-700"></label>
+                        <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Acumulado Mês</span><input type="text" id="fatAcumulado" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-bold border border-slate-700" autocomplete="off"></label>
                         <label class="block italic"><span class="text-[10px] text-green-500 uppercase font-bold tracking-widest">Hoje</span><input type="text" id="fatHoje" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mt-1 text-green-300 font-black opacity-75"></label>
                     </div>
                     <div class="bg-slate-950 rounded-2xl p-6 border border-slate-800 space-y-4">
@@ -139,7 +142,7 @@
                             <button onclick="setTipo('custo')" id="btnTipoCusto" class="px-5 py-2 rounded-md text-[8px] font-black uppercase text-slate-500">Custo</button>
                         </div></div>
                         <div class="flex gap-2">
-                            <input type="text" id="valCorrida" oninput="mascaraMoeda(event)" onkeydown="if(event.key==='Enter') adicionarCorrida()" placeholder="R$ 0,00" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-black text-lg outline-none">
+                            <input type="text" id="valCorrida" oninput="mascaraMoeda(event)" onkeydown="if(event.key==='Enter') adicionarCorrida()" placeholder="R$ 0,00" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-black text-lg outline-none" autocomplete="off">
                             <button onclick="adicionarCorrida()" class="px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black shadow-lg shadow-blue-600/20 text-xl">+</button>
                         </div>
                         <div id="feedCorridas" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
@@ -154,14 +157,13 @@
             <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
                 <h2 class="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] flex items-center gap-3 italic">🛠️ Custos Variáveis</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Energia / Fuel Manual</label><input type="text" id="energiaManual" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-blue-400 font-black border border-slate-700"></div>
-                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Seguro Mensal</label><input type="text" id="seguro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700"></div>
-                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Reserva de Manutenção</label><input type="text" id="manutencao" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700"></div>
-                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">KM Trabalhado (Mês)</label><input type="number" id="kmMensal" oninput="calcular()" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Energia / Fuel Manual</label><input type="text" id="energiaManual" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-blue-400 font-black border border-slate-700" autocomplete="off"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Seguro Mensal</label><input type="text" id="seguro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700" autocomplete="off"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Reserva de Manutenção</label><input type="text" id="manutencao" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700" autocomplete="off"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">KM Trabalhado (Mês)</label><input type="number" id="kmMensal" oninput="calcular()" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none" autocomplete="off"></div>
                 </div>
                 <div class="p-8 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center">
                     <div><span class="text-[10px] text-slate-500 uppercase font-black italic tracking-widest">Custo por KM</span><div id="resCPK" class="text-4xl font-black text-white font-mono tracking-tighter">R$ 0,00</div></div>
-                    <button onclick="encerrarSessao()" class="px-5 py-2.5 bg-red-600/10 text-red-500 text-[9px] font-black uppercase rounded-xl border border-red-500/20 italic">Sair da Conta</button>
                 </div>
                 <div class="mt-12 pt-10 border-t border-red-500/10"><button onclick="resetGeralCloud()" class="w-full py-5 bg-red-950/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/30 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] italic">⚠️ LIMPAR TODO O BANCO DE DADOS CLOUD</button></div>
             </section>
@@ -172,8 +174,8 @@
             <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-10 text-center">
                 <h2 class="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em] italic">🔋 Registro de Energização</h2>
                 <div class="space-y-6">
-                    <div class="space-y-1"><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">Quanto custou?</span><input type="text" id="log-valor" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 font-black text-3xl text-white outline-none border border-slate-700 text-center"></div>
-                    <div class="space-y-1"><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">KM atual</span><input type="number" id="log-km" class="w-full bg-slate-800 rounded-xl p-4 font-black text-3xl text-white outline-none border border-slate-700 text-center"></div>
+                    <div class="space-y-1"><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">Quanto custou?</span><input type="text" id="log-valor" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 font-black text-3xl text-white outline-none border border-slate-700 text-center" autocomplete="off"></div>
+                    <div class="space-y-1"><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">KM atual</span><input type="number" id="log-km" class="w-full bg-slate-800 rounded-xl p-4 font-black text-3xl text-white outline-none border border-slate-700 text-center" autocomplete="off"></div>
                     <button onclick="salvarLog()" class="w-full bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl font-black uppercase text-white shadow-xl transition-all text-sm tracking-widest italic">Salvar na Nuvem</button>
                 </div>
                 <div class="pt-8 border-t border-slate-800">
@@ -201,7 +203,14 @@
     <script>
         const SUPABASE_URL = 'https://kgwswvnyhysuazdqtdww.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd3N3dm55aHlzdWF6ZHF0ZHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzA1OTcsImV4cCI6MjA5MTk0NjU5N30.9CUflkb0U7JMCyqYxSQ09Ca6Bgcf8wE8dG4P02MDL5g';
-        let db, auth, currentUser, authMode = 'login', logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho';
+        let db, auth, currentUser, authMode = 'login', logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho', saveTimeout;
+        function setSyncStatus(s) { 
+            const el = document.getElementById('sync-status'); if(!el) return;
+            if(s==='saving') { el.innerText = '⏳ Salvando...'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-yellow-500 animate-pulse'; }
+            else if(s==='synced') { el.innerText = '☁️ Nuvem OK'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-green-500'; }
+            else if(s==='error') { el.innerText = '⚠️ Erro Cloud'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-red-500'; }
+            else if(s==='loading') { el.innerText = '⏳ Carregando...'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-blue-400 animate-pulse'; }
+        }
 
         try { const s = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); db = s; auth = s.auth; } catch (e) { alert("Erro Cloud: " + e.message); }
 
@@ -216,7 +225,7 @@
         }
 
         auth.onAuthStateChange(async (ev, s) => {
-            if(s) { 
+            if(s && ev !== 'SIGNED_OUT') { 
                 currentUser = s.user; 
                 document.getElementById('page-auth').classList.add('hidden'); 
                 document.getElementById('app-main').classList.remove('hidden'); 
@@ -225,11 +234,13 @@
                 currentUser = null; 
                 document.getElementById('page-auth').classList.remove('hidden'); 
                 document.getElementById('app-main').classList.add('hidden'); 
+                if(ev === 'SIGNED_OUT') limparInterface();
             }
         });
 
         async function salvarPerfilCloud() { 
             if(!currentUser) return; 
+            setSyncStatus('saving');
             const save = {}; 
             ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'].forEach(id => { 
                 const el = document.getElementById(id); 
@@ -237,12 +248,14 @@
             }); 
             if(Object.keys(save).length > 0) {
                 const { error } = await db.from('profiles').upsert({ id: currentUser.id, config: save });
-                if(error) console.warn("Erro Sincronia Perfil:", error.message);
-            }
+                if(error) { console.warn("Erro Sincronia Perfil:", error.message); setSyncStatus('error'); }
+                else { setSyncStatus('synced'); }
+            } else { setSyncStatus('synced'); }
         }
 
         async function carregarDadosCloud() {
             if(!currentUser) return;
+            setSyncStatus('loading');
             try {
                 const { data: p, error: pErr } = await db.from('profiles').select('config').eq('id', currentUser.id).single(); 
                 if(p?.config) {
@@ -257,15 +270,47 @@
                 logs = r || [];
                 
                 calcular(); renderLogs(); renderGanhos();
-            } catch (err) { console.error("Erro ao carregar dados:", err); }
+                setSyncStatus('synced');
+            } catch (err) { console.error("Erro ao carregar dados:", err); setSyncStatus('error'); }
         }
 
         async function encerrarSessao() { 
             if(confirm("Deseja realmente sair do Cockpit?")) { 
-                document.getElementById('app-main').classList.add('hidden');
-                document.getElementById('page-auth').classList.remove('hidden');
-                await auth.signOut(); 
+                try {
+                    document.getElementById('app-main').classList.add('hidden');
+                    document.getElementById('page-auth').classList.remove('hidden');
+                    await auth.signOut();
+                } catch (e) {
+                    console.error("Erro ao sair:", e);
+                } finally {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        for(let reg of regs) await reg.unregister();
+                    }
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        for(let key of keys) await caches.delete(key);
+                    }
+                    document.cookie.split(";").forEach(c => {
+                        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                    });
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    limparInterface();
+                    window.location.replace(window.location.pathname);
+                }
             }
+        }
+        function limparInterface() {
+            const ids = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'log-valor', 'log-km', 'valCorrida', 'auth-email', 'auth-password'];
+            ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+            ['resFatTotal', 'resOperacional', 'resCaixa', 'resReal', 'resCPK'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = 'R$ 0,00'; });
+            document.getElementById('resFaltaMeta').innerText = 'Carregando Nuvem...';
+            document.getElementById('resDiaria').innerText = 'Sincronizando...';
+            ['feedCorridas', 'listaGanhos', 'historicoLogs'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ''; });
+            if(document.getElementById('contCargas')) document.getElementById('contCargas').innerText = '0 Cargas';
+            if(document.getElementById('contDias')) document.getElementById('contDias').innerText = '0 LANÇAMENTOS';
+            logs = []; logsGanhos = []; corridasDia = [];
         }
         function switchPage(p) { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); const ab = document.getElementById('nav-'+p); ab.classList.add('nav-active'); ab.classList.remove('text-slate-500'); if(p==='recargas') renderLogs(); calcular(); }
         function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if(e.target.id!=='log-valor') calcular(); }
@@ -276,14 +321,20 @@
             const vC = formatToFloat(document.getElementById('vCarro').value), fat = formatToFloat(document.getElementById('faturamento').value), fatAc = formatToFloat(document.getElementById('fatAcumulado').value), fatHoje = formatToFloat(document.getElementById('fatHoje').value);
             const situ = document.getElementById('situacaoVeiculo').value, par = situ === 'quitado' ? 0 : formatToFloat(document.getElementById('parcela').value);
             const seg = formatToFloat(document.getElementById('seguro').value), manu = formatToFloat(document.getElementById('manutencao').value), kmM = parseFloat(document.getElementById('kmMensal').value) || 0, depA = parseFloat(document.getElementById('modeloByd').value);
-            let cRec = 0; logs.forEach(l => cRec += l.value); let cF = logs.length > 0 ? cRec : formatToFloat(document.getElementById('energiaManual').value);
+            let cRec = 0; logs.forEach(l => cRec += l.value); 
+            const inputE = document.getElementById('energiaManual');
+            if(logs.length > 0) { inputE.value = "R$ " + fmt(cRec); inputE.readOnly = true; inputE.classList.add('opacity-75'); } 
+            else { inputE.readOnly = false; inputE.classList.remove('opacity-75'); }
+            let cF = logs.length > 0 ? cRec : formatToFloat(inputE.value);
             const tG = fatAc + fatHoje, fF = Math.max(tG, fat), depM = (vC * depA) / 12, op = fF - seg - cF, cx = op - par, rl = cx - depM - manu, cpk = kmM > 0 ? (par + seg + manu + cF + depM) / kmM : 0;
-            document.getElementById('secaoDivida').style.display = situ === 'quitado' ? 'none' : 'block';
+            document.getElementById('secaoDivida').classList.toggle('hidden', situ === 'quitado');
             const ids = { 'resFatTotal': fF, 'resOperacional': op, 'resCaixa': cx, 'resReal': rl, 'resCPK': cpk };
             Object.keys(ids).forEach(id => { const el = document.getElementById(id); if(el) el.innerText = `R$ ${fmt(ids[id])}`; });
             const rM = document.getElementById('resFaltaMeta'), rD = document.getElementById('resDiaria');
             if(tG >= fat) { rM.innerText = "META ATINGIDA!"; rD.innerText = `EXCESSO: R$ ${fmt(tG - fat)}`; } else { rM.innerText = `FALTAM R$ ${fmt(fat-tG)}`; rD.innerText = `MÉDIA: R$ ${fmt((fat-tG)/(30-new Date().getDate()+1))}/DIA`; }
-            salvarPerfilCloud();
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => { salvarPerfilCloud(); }, 1000);
         }
 
         async function buscarFipe() {
