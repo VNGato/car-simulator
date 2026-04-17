@@ -53,8 +53,8 @@
         </div>
     </div>
 
-    <div id="app-main" class="hidden max-w-6xl mx-auto overflow-x-hidden">
-        <header class="mb-8 bg-slate-900 p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+    <div id="app-main" class="hidden max-w-6xl mx-auto">
+        <header class="mb-4 lg:mb-8 bg-slate-900 p-4 lg:p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">BYD BUSINESS <span class="text-green-500 text-xs">v6.0</span> <span id="sync-status" class="ml-2 text-[8px] font-bold uppercase tracking-widest text-slate-500">☁️ Sincronizado</span></h1>
                 <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold" autocomplete="off">Gestão de Ativos & Eficiência</p>
@@ -104,6 +104,8 @@
                 <div id="resFaltaMeta" class="text-2xl font-black text-blue-400 uppercase italic tracking-tighter">Faltam R$ 0,00</div>
                 <div id="resDiaria" class="text-[9px] text-slate-500 mt-1 uppercase font-bold italic tracking-widest opacity-80">Aguardando Sincronia...</div>
             </div>
+            <!-- Espaçador Anti-Barra Navigation -->
+            <div class="h-40 w-full block lg:hidden"></div>
         </div>
 
         <!-- CAPITAL -->
@@ -111,13 +113,13 @@
             <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
                 <h2 class="text-blue-500 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3 italic">💰 Gestão de Capital</h2>
                 <div class="grid grid-cols-2 gap-4">
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Modelo BYD</span><select id="modeloByd" onchange="calcular()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="0.14">Dolphin Mini (14%)</option><option value="0.12">Dolphin GS (12%)</option><option value="0.13">Dolphin Plus (13%)</option><option value="0.16">Yuan Plus (16%)</option><option value="0.17">Song Plus (17%)</option><option value="0.15">King GL (15%)</option><option value="0.15">King GS (15%)</option><option value="0.18">Seal (18%)</option><option value="0.20">Tan (20%)</option><option value="0.20">Han (20%)</option></select></label>
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Modelo BYD</span><select id="modeloByd" onchange="calcular(true)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="0.14">Dolphin Mini (14%)</option><option value="0.12">Dolphin GS (12%)</option><option value="0.13">Dolphin Plus (13%)</option><option value="0.16">Yuan Plus (16%)</option><option value="0.17">Song Plus (17%)</option><option value="0.15">King GL (15%)</option><option value="0.15">King GS (15%)</option><option value="0.18">Seal (18%)</option><option value="0.20">Tan (20%)</option><option value="0.20">Han (20%)</option></select></label>
                     <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Ano</span><select id="anoModelo" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="Zero Km">Zero KM (Atual)</option><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option></select></label>
                 </div>
                 <button onclick="buscarFipe()" id="btnFipe" class="w-full py-4 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white text-[9px] font-black uppercase rounded-xl border border-blue-600/20 transition-all italic tracking-widest">🔍 Consultar Valor Real na Tabela FIPE</button>
                 <div class="space-y-4">
                     <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Valor de Mercado do Carro (R$)</span><input type="text" id="vCarro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 mt-1 text-white font-black text-xl border border-slate-700" autocomplete="off"></label>
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Situação de Pagamento</span><select id="situacaoVeiculo" onchange="calcular()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="quitado">Propriedade Integral (Quitado)</option><option value="parcelado">Financiado (Em Parcelas)</option></select></label>
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Situação de Pagamento</span><select id="situacaoVeiculo" onchange="calcular(true)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="quitado">Propriedade Integral (Quitado)</option><option value="parcelado">Financiado (Em Parcelas)</option></select></label>
                     <div id="secaoDivida" class="hidden p-6 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
                         <label class="block"><span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Valor da Entrada (R$)</span><input type="text" id="vEntrada" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-blue-400 font-black border border-slate-700" autocomplete="off"></label>
                         <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Valor da Parcela Mensal (R$)</span><input type="text" id="parcela" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-black border border-slate-700" autocomplete="off"></label>
@@ -161,7 +163,7 @@
                     <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Energia / Fuel Manual</label><input type="text" id="energiaManual" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-blue-400 font-black border border-slate-700" autocomplete="off"></div>
                     <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Seguro Mensal</label><input type="text" id="seguro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700" autocomplete="off"></div>
                     <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Reserva de Manutenção</label><input type="text" id="manutencao" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700" autocomplete="off"></div>
-                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">KM Trabalhado (Mês)</label><input type="number" id="kmMensal" oninput="calcular()" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none" autocomplete="off"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">KM Trabalhado (Mês)</label><input type="number" id="kmMensal" oninput="calcular(true)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none" autocomplete="off"></div>
                 </div>
                 <div class="p-8 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center">
                     <div><span class="text-[10px] text-slate-500 uppercase font-black italic tracking-widest">Custo por KM</span><div id="resCPK" class="text-4xl font-black text-white font-mono tracking-tighter">R$ 0,00</div></div>
@@ -339,12 +341,12 @@
             if(document.getElementById('contDias')) document.getElementById('contDias').innerText = '0 LANÇAMENTOS';
             logs = []; logsGanhos = []; corridasDia = [];
         }
-        function switchPage(p) { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); const ab = document.getElementById('nav-'+p); ab.classList.add('nav-active'); ab.classList.remove('text-slate-500'); if(p==='recargas') renderLogs(); calcular(); }
-        function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if(e.target.id!=='log-valor') calcular(); }
+        function switchPage(p) { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); const ab = document.getElementById('nav-'+p); ab.classList.add('nav-active'); ab.classList.remove('text-slate-500'); if(p==='recargas') renderLogs(); calcular(false); }
+        function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if(e.target.id!=='log-valor') calcular(true); }
         function formatToFloat(s) { if (!s) return 0; return parseFloat(s.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0; }
         const fmt = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        function calcular() {
+        function calcular(manual = false) {
             const vC = formatToFloat(document.getElementById('vCarro').value), fat = formatToFloat(document.getElementById('faturamento').value), fatAc = formatToFloat(document.getElementById('fatAcumulado').value), fatHoje = formatToFloat(document.getElementById('fatHoje').value);
             const situ = document.getElementById('situacaoVeiculo').value, par = situ === 'quitado' ? 0 : formatToFloat(document.getElementById('parcela').value);
             const seg = formatToFloat(document.getElementById('seguro').value), manu = formatToFloat(document.getElementById('manutencao').value), kmM = parseFloat(document.getElementById('kmMensal').value) || 0, depA = parseFloat(document.getElementById('modeloByd').value);
@@ -360,9 +362,11 @@
             const rM = document.getElementById('resFaltaMeta'), rD = document.getElementById('resDiaria');
             if(tG >= fat) { rM.innerText = "META ATINGIDA!"; rD.innerText = `EXCESSO: R$ ${fmt(tG - fat)}`; } else { rM.innerText = `FALTAM R$ ${fmt(fat-tG)}`; rD.innerText = `MÉDIA: R$ ${fmt((fat-tG)/(30-new Date().getDate()+1))}/DIA`; }
             
-            salvarLocalmente();
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => { salvarPerfilCloud(); }, 1000);
+            if(manual) {
+                salvarLocalmente();
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => { salvarPerfilCloud(); }, 1000);
+            }
         }
 
         async function buscarFipe() {
@@ -375,8 +379,8 @@
         }
 
         function setTipo(t) { tipoLancamento = t; document.getElementById('btnTipoGanho').className = t==='ganho'?"px-5 py-2 rounded-md text-[8px] font-black uppercase bg-blue-600 text-white shadow-lg":"px-5 py-2 rounded-md text-[8px] font-black uppercase text-slate-500"; document.getElementById('btnTipoCusto').className = t==='custo'?"px-5 py-2 rounded-md text-[8px] font-black uppercase bg-red-600 text-white shadow-lg":"px-5 py-2 rounded-md text-[8px] font-black uppercase text-slate-500"; }
-        function adicionarCorrida() { const i = document.getElementById('valCorrida'), v = formatToFloat(i.value); if(v<=0) return; corridasDia.unshift({ v, t: tipoLancamento }); i.value = ""; renderCorridas(); calcular(); }
-        function removerCorrida(i) { corridasDia.splice(i, 1); renderCorridas(); calcular(); }
+        function adicionarCorrida() { const i = document.getElementById('valCorrida'), v = formatToFloat(i.value); if(v<=0) return; corridasDia.unshift({ v, t: tipoLancamento }); i.value = ""; renderCorridas(); calcular(true); }
+        function removerCorrida(i) { corridasDia.splice(i, 1); renderCorridas(); calcular(true); }
         function renderCorridas() { const f = document.getElementById('feedCorridas'); f.innerHTML = ""; let t = 0; corridasDia.forEach((c, idx) => { t += (c.t==='ganho'?c.v:-c.v); f.innerHTML += `<div class="bg-slate-950 border ${c.t==='ganho'?'border-blue-500/20 text-blue-400':'border-red-500/20 text-red-400'} px-2 py-2 rounded-xl flex justify-between items-center text-[9px] font-black">R$ ${fmt(c.v)} <button onclick="removerCorrida(${idx})">×</button></div>`; }); document.getElementById('fatHoje').value = t!==0?"R$ "+fmt(t):""; }
 
         async function salvarGanho() { 
