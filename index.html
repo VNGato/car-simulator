@@ -18,142 +18,132 @@
         .hidden { display: none !important; }
         .nav-active { color: #4f46e5; border-top: 2px solid #4f46e5; background: rgba(79, 70, 229, 0.05); }
         .nav-active svg { color: #4f46e5; filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.5)); }
-        body { padding-bottom: 80px; }
+        body { padding-bottom: 120px; }
         @media (min-width: 1024px) { body { padding-bottom: 0; padding-top: 80px; } }
         #historicoLogs::-webkit-scrollbar { width: 4px; }
         #historicoLogs::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .card-glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.05); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 
 <body class="bg-slate-950 text-slate-200 font-sans p-2 md:p-8">
 
-    <!-- Tela de Autenticação Cloud -->
-    <div id="page-auth" class="fixed inset-0 z-[9999] bg-slate-950 flex items-center justify-center p-4">
-        <div class="w-full max-w-sm bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-8 animate-in fade-in zoom-in duration-500">
+    <!-- LOGIN CLOUD -->
+    <div id="page-auth" class="fixed inset-0 z-[9999] bg-[#020617] flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-8">
             <div class="text-center space-y-2">
                 <h1 class="text-3xl font-black text-white italic tracking-tighter uppercase">BYD BUSINESS <span class="text-green-500 text-xs">v6.0</span></h1>
-                <p id="auth-title" class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">Sincronização em Nuvem</p>
+                <p id="auth-title" class="text-slate-500 text-[10px] uppercase font-bold tracking-widest italic">GESTÃO DE ATIVOS CLOUD</p>
             </div>
+            <div id="auth-error" class="hidden text-[10px] uppercase font-black text-center tracking-widest p-4 rounded-xl border"></div>
             <div class="space-y-4">
-                <div class="space-y-2">
-                    <label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">E-mail</label>
-                    <input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 outline-none text-white focus:border-indigo-500/50 transition-all font-bold">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">Senha</label>
-                    <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 outline-none text-white focus:border-indigo-500/50 transition-all font-bold">
-                </div>
-                <button onclick="handleAuth()" id="btn-auth" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-[10px]">Entrar no Cockpit</button>
+                <div class="space-y-2"><label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">E-mail</label><input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 outline-none text-white focus:border-indigo-500/50 transition-all font-bold"></div>
+                <div class="space-y-2"><label class="text-[10px] text-slate-500 uppercase font-black tracking-widest pl-1">Senha</label><input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 outline-none text-white focus:border-indigo-500/50 transition-all font-bold"></div>
+                <button onclick="handleAuth()" id="btn-auth" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-[10px]">Entrar no Cockpit</button>
             </div>
             <div class="text-center pt-4 border-t border-slate-800">
                 <button onclick="toggleAuthMode()" id="btn-toggle-auth" class="text-[10px] text-slate-500 hover:text-indigo-400 font-black uppercase transition-colors tracking-widest">Não tem conta? Cadastre-se</button>
             </div>
-            <div id="auth-error" class="hidden text-[10px] text-red-500 font-bold text-center uppercase tracking-widest bg-red-500/10 p-2 rounded border border-red-500/20"></div>
         </div>
     </div>
 
-    <!-- Container Principal -->
-    <div id="app-main" class="hidden max-w-6xl mx-auto">
+    <div id="app-main" class="hidden max-w-6xl mx-auto overflow-x-hidden">
         <header class="mb-8 bg-slate-900 p-6 rounded-2xl border-b-4 border-green-600 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">BYD BUSINESS <span class="text-green-500 text-xs">v6.0</span></h1>
-                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Gestão de Ativos Cloud</p>
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Gestão de Ativos & Eficiência</p>
             </div>
             <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-t border-slate-800 lg:top-0 lg:bottom-auto lg:border-t-0 lg:border-b flex justify-around items-center px-2 py-3 lg:py-0 overflow-x-auto no-scrollbar shadow-2xl">
-                <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all nav-active group min-w-[60px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Painel</span>
-                </button>
-                <button onclick="switchPage('capital')" id="nav-capital" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Capital</span>
-                </button>
-                <button onclick="switchPage('operacao')" id="nav-operacao" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Operação</span>
-                </button>
-                <button onclick="switchPage('custos')" id="nav-custos" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Custo</span>
-                </button>
-                <button onclick="switchPage('recargas')" id="nav-recargas" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Recarga</span>
-                </button>
-                <button onclick="switchPage('extrato')" id="nav-extrato" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    <span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Extrato</span>
-                </button>
+                <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all nav-active group min-w-[60px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Painel</span></button>
+                <button onclick="switchPage('capital')" id="nav-capital" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Capital</span></button>
+                <button onclick="switchPage('operacao')" id="nav-operacao" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Operação</span></button>
+                <button onclick="switchPage('custos')" id="nav-custos" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Custo</span></button>
+                <button onclick="switchPage('recargas')" id="nav-recargas" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Recarga</span></button>
+                <button onclick="switchPage('extrato')" id="nav-extrato" class="flex flex-col lg:flex-row items-center gap-1.5 p-2 rounded-xl transition-all text-slate-500 group min-w-[60px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">Extrato</span></button>
             </nav>
         </header>
 
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="view-content active max-w-7xl mx-auto space-y-6">
-             <div class="relative bg-slate-900/20 rounded-3xl border border-slate-800/50 p-4 transition-all duration-500">
-                <div id="gridDashboard" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-gradient-to-br from-indigo-950/20 to-slate-950 p-6 rounded-3xl border border-indigo-900/10 shadow-2xl flex flex-col">
-                        <span class="text-indigo-400 font-black text-[8px] italic uppercase tracking-widest mb-2">Faturamento</span>
+             <div class="relative bg-slate-900/20 rounded-3xl border border-slate-800/50 p-4 shadow-xl">
+                <div class="flex justify-between items-center px-2 mb-4">
+                    <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div><span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Painel Operacional</span></div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="group relative bg-[#0a0f1e] p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col cursor-help overflow-hidden">
+                        <span class="self-start text-indigo-400 font-black text-[8px] italic bg-indigo-900/30 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Faturamento</span>
                         <h2 class="text-indigo-400 text-[10px] font-black uppercase mb-1">Total Gerado</h2>
                         <div id="resFatTotal" class="text-2xl md:text-3xl font-black text-indigo-300 italic">R$ 0,00</div>
                     </div>
-                    <div class="bg-gradient-to-br from-blue-950/10 to-slate-950 p-6 rounded-3xl border border-blue-900/10 shadow-2xl flex flex-col">
-                        <span class="text-blue-400 font-black text-[8px] italic uppercase tracking-widest mb-2">Operação</span>
+                    <div class="group relative bg-[#0a0f1e] p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col cursor-help overflow-hidden">
+                        <span class="self-start text-blue-400 font-black text-[8px] italic bg-blue-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Operação</span>
                         <h2 class="text-blue-400 text-[10px] font-black uppercase mb-1">Ganho de Trabalho</h2>
                         <div id="resOperacional" class="text-2xl md:text-3xl font-black text-blue-300 italic">R$ 0,00</div>
                     </div>
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col">
-                        <span class="text-slate-500 font-black text-[8px] italic uppercase tracking-widest mb-2">Caixa</span>
-                        <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">No Bolso</h2>
+                    <div class="group relative bg-[#0a0f1e] p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col cursor-help overflow-hidden">
+                        <span class="self-start text-slate-500 font-black text-[8px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Caixa</span>
+                        <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso</h2>
                         <div id="resCaixa" class="text-2xl md:text-3xl font-black text-white">R$ 0,00</div>
                     </div>
-                    <div class="bg-gradient-to-br from-green-950/10 to-slate-950 p-6 rounded-3xl border border-green-900/20 shadow-2xl flex flex-col">
-                        <span class="text-green-500 font-black text-[8px] italic uppercase tracking-widest mb-2">Real</span>
-                        <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Patrimonial</h2>
+                    <div class="group bg-[#0a0f1e] p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden">
+                        <span class="self-start text-green-500 font-black text-[8px] italic bg-green-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Real</span>
+                        <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Patrimonial Final</h2>
                         <div id="resReal" class="text-2xl md:text-3xl font-black text-green-400">R$ 0,00</div>
                     </div>
                 </div>
             </div>
-            <div id="statusMeta" class="p-8 bg-slate-950 rounded-3xl border border-slate-800 text-center relative overflow-hidden">
-                <div class="text-[10px] text-slate-600 font-black uppercase mb-2">Foco na Meta</div>
-                <div id="resFaltaMeta" class="text-3xl font-black text-blue-400 uppercase tracking-tighter">Aguardando Nuvem</div>
-                <div id="resDiaria" class="text-[10px] text-slate-500 mt-2 uppercase font-bold italic">Sincronizando perfil...</div>
+            <div id="statusMeta" class="p-8 bg-slate-950 rounded-3xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-600 font-black uppercase mb-2 tracking-[0.2em]">Foco na Meta</div>
+                <div id="resFaltaMeta" class="text-3xl font-black text-blue-400 uppercase italic">Carregando Nuvem...</div>
+                <div id="resDiaria" class="text-[10px] text-slate-500 mt-2 uppercase font-bold italic tracking-wider">Sincronizando...</div>
             </div>
+        </div>
+
+        <!-- CAPITAL -->
+        <div id="page-capital" class="view-content hidden max-w-xl mx-auto py-4">
+            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
+                <h2 class="text-blue-500 font-black text-xs uppercase tracking-[0.3em] italic flex items-center gap-3 italic">💰 Gestão de Capital</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Modelo BYD</span><select id="modeloByd" onchange="calcular()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="0.14">Dolphin Mini (14%)</option><option value="0.12">Dolphin GS (12%)</option><option value="0.13">Dolphin Plus (13%)</option><option value="0.16">Yuan Plus (16%)</option><option value="0.17">Song Plus (17%)</option><option value="0.15">King GL (15%)</option><option value="0.15">King GS (15%)</option><option value="0.18">Seal (18%)</option><option value="0.20">Tan (20%)</option><option value="0.20">Han (20%)</option></select></label>
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Ano</span><select id="anoModelo" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="Zero Km">Zero KM (Atual)</option><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option></select></label>
+                </div>
+                <button onclick="buscarFipe()" id="btnFipe" class="w-full py-4 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white text-[9px] font-black uppercase rounded-xl border border-blue-600/20 transition-all italic tracking-widest">🔍 Consultar Valor Real na Tabela FIPE</button>
+                <div class="space-y-4">
+                    <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Valor de Mercado do Carro (R$)</span><input type="text" id="vCarro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 mt-1 text-white font-black text-xl border border-slate-700"></label>
+                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Situação de Pagamento</span><select id="situacaoVeiculo" onchange="calcular()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-white text-xs font-black mt-1 outline-none"><option value="quitado">Propriedade Integral (Quitado)</option><option value="parcelado">Financiado (Em Parcelas)</option></select></label>
+                    <div id="secaoDivida" class="hidden p-6 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
+                        <label class="block"><span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Valor da Entrada (R$)</span><input type="text" id="vEntrada" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-blue-400 font-black border border-slate-700"></label>
+                        <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Valor da Parcela Mensal (R$)</span><input type="text" id="parcela" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-black border border-slate-700"></label>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <!-- OPERAÇÃO -->
         <div id="page-operacao" class="view-content hidden max-w-xl mx-auto py-4">
             <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
-                <h2 class="text-green-400 font-black text-xs uppercase tracking-[0.3em] mb-4 flex items-center gap-3 italic">📈 Operação Mensal</h2>
+                <h2 class="text-green-500 font-black text-xs uppercase tracking-[0.3em] flex items-center gap-3 italic">📈 Operação Mensal</h2>
                 <div class="space-y-4">
-                    <label class="block">
-                        <span class="text-[10px] text-slate-500 uppercase font-black">Meta Mensal de Faturamento (R$)</span>
-                        <input type="text" id="faturamento" oninput="mascaraMoeda(event)" inputmode="decimal" class="w-full bg-slate-800 rounded-xl p-4 mt-1 outline-none text-green-400 font-black text-2xl border border-slate-700 focus:border-green-500">
-                    </label>
+                    <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Meta Mensal de Faturamento (R$)</span><input type="text" id="faturamento" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 mt-1 text-green-400 font-black text-2xl border border-slate-700 outline-none focus:border-green-500/50"></label>
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="block">
-                            <span class="text-[10px] text-slate-500 uppercase font-black">Acumulado Mês</span>
-                            <input type="text" id="fatAcumulado" oninput="mascaraMoeda(event)" inputmode="decimal" class="w-full bg-slate-800 rounded-xl p-3 mt-1 outline-none text-white font-bold border border-slate-700">
-                        </label>
-                        <label class="block italic">
-                            <span class="text-[10px] text-green-500 uppercase font-black">Hoje</span>
-                            <input type="text" id="fatHoje" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mt-1 outline-none text-green-300 font-black opacity-75">
-                        </label>
+                        <label class="block"><span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Acumulado Mês</span><input type="text" id="fatAcumulado" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-white font-bold border border-slate-700"></label>
+                        <label class="block italic"><span class="text-[10px] text-green-500 uppercase font-bold tracking-widest">Hoje</span><input type="text" id="fatHoje" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mt-1 text-green-300 font-black opacity-75"></label>
                     </div>
                     <div class="bg-slate-950 rounded-2xl p-6 border border-slate-800 space-y-4">
-                        <div class="flex justify-between items-center"><span class="text-[10px] text-slate-500 uppercase font-black">Lançar Registro</span>
+                        <div class="flex justify-between items-center"><span class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Lançar Registro</span>
                         <div class="flex gap-1 bg-slate-900/50 p-1 rounded-lg border border-slate-800">
-                            <button onclick="setTipo('ganho')" id="btnTipoGanho" class="px-4 py-1 rounded-md text-[8px] font-black uppercase bg-blue-600 text-white">Ganho</button>
-                            <button onclick="setTipo('custo')" id="btnTipoCusto" class="px-4 py-1 rounded-md text-[8px] font-black uppercase text-slate-500">Custo</button>
+                            <button onclick="setTipo('ganho')" id="btnTipoGanho" class="px-5 py-2 rounded-md text-[8px] font-black uppercase bg-blue-600 text-white shadow-lg">Ganho</button>
+                            <button onclick="setTipo('custo')" id="btnTipoCusto" class="px-5 py-2 rounded-md text-[8px] font-black uppercase text-slate-500">Custo</button>
                         </div></div>
                         <div class="flex gap-2">
-                            <input type="text" id="valCorrida" oninput="mascaraMoeda(event)" inputmode="decimal" onkeydown="if(event.key==='Enter') adicionarCorrida()" placeholder="R$ 0,00" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-black text-lg">
-                            <button onclick="adicionarCorrida()" class="px-6 bg-indigo-600 text-white rounded-xl font-black shadow-lg shadow-indigo-600/20">+</button>
+                            <input type="text" id="valCorrida" oninput="mascaraMoeda(event)" onkeydown="if(event.key==='Enter') adicionarCorrida()" placeholder="R$ 0,00" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-black text-lg outline-none">
+                            <button onclick="adicionarCorrida()" class="px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black shadow-lg shadow-blue-600/20 text-xl">+</button>
                         </div>
-                        <div id="feedCorridas" class="grid grid-cols-4 gap-2"></div>
+                        <div id="feedCorridas" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
                     </div>
-                    <button onclick="salvarGanho()" class="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-black rounded-xl transition-all uppercase tracking-widest text-[10px]">✓ Salvar Ganho na Nuvem</button>
+                    <button onclick="salvarGanho()" class="w-full py-5 bg-green-600/10 hover:bg-green-600 text-green-400 hover:text-white font-black rounded-xl border border-green-600/20 transition-all uppercase tracking-widest text-[11px] italic">✓ SALVAR GANHO NA NUVEM</button>
                 </div>
             </section>
         </div>
@@ -161,73 +151,34 @@
         <!-- CUSTOS -->
         <div id="page-custos" class="view-content hidden max-w-xl mx-auto py-4">
             <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
-                <h2 class="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] italic">🛠️ Custos Variáveis</h2>
+                <h2 class="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] flex items-center gap-3 italic">🛠️ Custos Variáveis</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Energia / Fuel (Manual)</label>
-                        <input type="text" id="energiaManual" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-blue-400 font-black border border-slate-700">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Seguro Mensal</label>
-                        <input type="text" id="seguro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Reserva Manutenção</label>
-                        <input type="text" id="manutencao" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">KM Rodado (Mês)</label>
-                        <input type="number" id="kmMensal" oninput="calcular()" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700">
-                    </div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Energia / Fuel Manual</label><input type="text" id="energiaManual" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-blue-400 font-black border border-slate-700"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Seguro Mensal</label><input type="text" id="seguro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Reserva de Manutenção</label><input type="text" id="manutencao" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700"></div>
+                    <div class="space-y-2"><label class="text-[10px] text-slate-400 uppercase font-black tracking-widest">KM Trabalhado (Mês)</label><input type="number" id="kmMensal" oninput="calcular()" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black border border-slate-700 outline-none"></div>
                 </div>
-                <div class="p-6 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center">
-                    <div><span class="text-[10px] text-slate-500 uppercase font-black italic">Custo por KM</span><div id="resCPK" class="text-3xl font-black text-white font-mono">R$ 0,00</div></div>
-                    <button onclick="logout()" class="px-4 py-2 bg-red-600/10 text-red-500 text-[8px] font-black uppercase rounded-lg border border-red-500/20">Sair da Conta</button>
+                <div class="p-8 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center">
+                    <div><span class="text-[10px] text-slate-500 uppercase font-black italic tracking-widest">Custo por KM</span><div id="resCPK" class="text-4xl font-black text-white font-mono tracking-tighter">R$ 0,00</div></div>
+                    <button onclick="logout()" class="px-5 py-2.5 bg-red-600/10 text-red-500 text-[9px] font-black uppercase rounded-xl border border-red-500/20 italic">Sair da Conta</button>
                 </div>
-
-                <!-- ZONA DE PERIGO -->
-                <div class="mt-8 pt-8 border-t border-red-500/20 space-y-4">
-                    <h3 class="text-red-500 font-black text-[10px] uppercase tracking-widest italic">⚠️ Zona de Perigo</h3>
-                    <button onclick="resetGeralCloud()" class="w-full py-4 bg-red-950/20 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/30 rounded-xl font-black transition-all uppercase tracking-widest text-[9px]">Limpar Todo o Banco de Dados (Zerar 0km)</button>
-                </div>
-            </section>
-        </div>
-
-        <!-- CAPITAL -->
-        <div id="page-capital" class="view-content hidden max-w-xl mx-auto py-4">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
-                <h2 class="text-blue-500 font-black text-xs uppercase tracking-[0.3em] italic">💰 Gestão de Capital</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Modelo BYD</span><select id="modeloByd" onchange="calcular()" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black appearance-none"><option value="0.14">Dolphin Mini (14%)</option><option value="0.12">Dolphin GS/EV (12%)</option><option value="0.13">Dolphin Plus (13%)</option><option value="0.16">Yuan Plus (16%)</option><option value="0.17">Song Plus (17%)</option><option value="0.18">Seal (18%)</option><option value="0.15">King GL (15%)</option><option value="0.15">King GS (15%)</option><option value="0.20">Tan EV (20%)</option><option value="0.20">Han EV (20%)</option></select></label>
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Ano</span><select id="anoModelo" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black"><option value="Zero Km">Zero Km</option><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option></select></label>
-                </div>
-                <button onclick="buscarFipe()" id="btn-fipe" class="w-full py-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-500/30 rounded-xl font-black transition-all uppercase tracking-widest text-[9px]">🔍 Consultar Tabela FIPE</button>
-                <div class="space-y-4">
-                    <label class="block"><span class="text-[10px] text-slate-500 uppercase font-black">Valor do Carro (R$)</span><input type="text" id="vCarro" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 text-white font-black text-xl border-slate-700"></label>
-                    <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Situação</span><select id="situacaoVeiculo" onchange="calcular()" class="w-full bg-slate-800 border-slate-700 rounded-xl p-3.5 text-white text-xs font-black"><option value="quitado">Quitado</option><option value="parcelado">Financiado</option></select></label>
-                    <div id="secaoDivida" class="p-6 bg-slate-950 rounded-2xl border-slate-800 space-y-4">
-                        <label class="block"><span class="text-[10px] text-slate-500 uppercase font-black">Valor Entrada (R$)</span><input type="text" id="vEntrada" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-blue-400 font-black"></label>
-                        <label class="block"><span class="text-[10px] text-slate-400 uppercase font-black">Parcela (R$)</span><input type="text" id="parcela" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-3 text-white font-black"></label>
-                    </div>
-                </div>
+                <div class="mt-12 pt-10 border-t border-red-500/10"><button onclick="resetGeralCloud()" class="w-full py-5 bg-red-950/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/30 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] italic">⚠️ LIMPAR TODO O BANCO DE DADOS CLOUD</button></div>
             </section>
         </div>
 
         <!-- RECARGAS -->
-        <div id="page-recargas" class="view-content hidden max-w-md mx-auto py-4">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-8">
-                <div class="flex justify-between items-center bg-blue-500/5 p-3 rounded-2xl border border-blue-500/10">
-                    <h2 class="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em] italic">🔋 Registro de Carga</h2>
-                    <span id="contCargas" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[7px] font-black uppercase">0 Cargas</span>
+        <div id="page-recargas" class="view-content hidden max-w-sm mx-auto py-4">
+            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-10 text-center">
+                <h2 class="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em] italic">🔋 Registro de Energização</h2>
+                <div class="space-y-6">
+                    <div class="space-y-1"><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">Quanto custou?</span><input type="text" id="log-valor" oninput="mascaraMoeda(event)" class="w-full bg-slate-800 rounded-xl p-4 font-black text-3xl text-white outline-none border border-slate-700 text-center"></div>
+                    <div class="space-y-1"><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest pl-1">KM atual</span><input type="number" id="log-km" class="w-full bg-slate-800 rounded-xl p-4 font-black text-3xl text-white outline-none border border-slate-700 text-center"></div>
+                    <button onclick="salvarLog()" class="w-full bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl font-black uppercase text-white shadow-xl transition-all text-sm tracking-widest italic">Salvar na Nuvem</button>
                 </div>
-                <div class="space-y-4">
-                    <input type="text" id="log-valor" oninput="mascaraMoeda(event)" placeholder="Valor R$ 0,00" class="w-full bg-slate-800 rounded-xl p-4 font-black text-2xl text-white outline-none">
-                    <input type="number" id="log-km" placeholder="KM Atual (Ex: 5400)" class="w-full bg-slate-800 rounded-xl p-4 font-black text-2xl text-white outline-none">
-                    <button onclick="salvarLog()" class="w-full bg-indigo-600 py-5 rounded-2xl font-black uppercase text-white shadow-xl shadow-indigo-900/20 transition-all text-sm">Salvar na Nuvem</button>
-                </div>
-                <div class="pt-6 border-t border-slate-800">
-                    <div id="historicoLogs" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 no-scrollbar"></div>
-                    <button onclick="limparLogs()" class="w-full text-red-500/40 text-[8px] font-black uppercase py-4 transition-all italic">Lançar Novo Ciclo (Limpar Banco)</button>
+                <div class="pt-8 border-t border-slate-800">
+                    <div id="contCargas" class="text-[10px] font-black uppercase text-slate-600 mb-6">0 Cargas</div>
+                    <div id="historicoLogs" class="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar"></div>
+                    <button onclick="limparLogs()" class="w-full text-red-900/40 hover:text-red-600 text-[8px] font-black uppercase py-4 transition-all italic">⚠️ Limpar Ciclo de Cargas</button>
                 </div>
             </section>
         </div>
@@ -236,206 +187,88 @@
         <div id="page-extrato" class="view-content hidden max-w-xl mx-auto py-4">
             <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-slate-500 font-black text-xs uppercase tracking-[0.3em] italic">📜 Extrato Cloud</h2>
-                    <span id="contDias" class="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[8px] border border-green-500/20 font-black">Carregando...</span>
+                    <h2 class="text-slate-500 font-black text-xs uppercase tracking-[0.3em] flex items-center gap-3 italic">📜 Extrato Mensal</h2>
+                    <span id="contDias" class="px-4 py-2 bg-green-500/10 text-green-500 rounded-full text-[8px] border border-green-500/20 font-black">EXIBINDO REGISTROS</span>
                 </div>
                 <div id="listaGanhos" class="grid grid-cols-2 gap-4"></div>
-                <div class="pt-8 border-t border-slate-800"><button onclick="limparGanhos()" class="w-full py-4 text-[9px] font-black text-red-500/30 hover:text-red-500 uppercase italic transition-all">Limpar Tudo</button></div>
+                <div class="pt-8 border-t border-slate-800"><button onclick="limparGanhos()" class="w-full py-4 text-[9px] font-black text-red-500/50 hover:bg-red-500/10 hover:text-red-500 uppercase italic border border-red-500/10 rounded-xl transition-all">⚠️ Resetar Histórico de Ganhos</button></div>
             </section>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://kgwswvnyhysuazdqtdww.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd3N3dm55aHlzdWF6ZHF0ZHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzA1OTcsImV4cCI6MjA5MTk0NjU5N30.9CUflkb0U7JMCyqYxSQ09Ca6Bgcf8wE8dG4P02MDL5g';
-        
-        let supabaseClient, db, auth;
-        let currentUser = null;
-        let authMode = 'login';
-        let logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho';
+        let db, auth, currentUser, authMode = 'login', logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho';
 
-        try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            db = supabaseClient; auth = supabaseClient.auth;
-        } catch (e) { alert("Erro Cloud: " + e.message); }
+        try { const s = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); db = s; auth = s.auth; } catch (e) { alert("Erro Cloud: " + e.message); }
 
-        async function toggleAuthMode() {
-            authMode = authMode === 'login' ? 'signup' : 'login';
-            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Sincronização em Nuvem' : 'Criar Nova Conta';
-            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Criar Conta e Iniciar';
-            document.getElementById('btn-toggle-auth').innerText = authMode === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entrar';
-        }
-
+        async function toggleAuthMode() { authMode = authMode === 'login' ? 'signup' : 'login'; document.getElementById('auth-title').innerText = authMode === 'login' ? 'GESTÃO DE ATIVOS CLOUD' : 'CRIAR CONTA'; document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Cadastrar'; }
         async function handleAuth() {
-            const email = document.getElementById('auth-email').value, password = document.getElementById('auth-password').value;
-            const btn = document.getElementById('btn-auth'), errDiv = document.getElementById('auth-error');
-            if (!email || !password) return; btn.disabled = true; btn.innerText = "⏳ Verificando..."; errDiv.classList.add('hidden');
-            try {
-                let res; 
-                if (authMode === 'login') res = await auth.signInWithPassword({ email, password }); 
-                else res = await auth.signUp({ email, password });
-                
-                if (res.error) throw res.error; 
-                
-                if (authMode === 'signup') {
-                    errDiv.innerText = "✓ Sucesso! Verifique seu e-mail para confirmar e poder entrar.";
-                    errDiv.className = "text-[10px] text-green-500 font-bold text-center uppercase tracking-widest bg-green-500/10 p-4 rounded-xl border border-green-500/20 shadow-lg shadow-green-500/5";
-                    errDiv.classList.remove('hidden');
-                }
-            } catch (err) { 
-                errDiv.innerText = err.message; 
-                errDiv.className = "text-[10px] text-red-500 font-bold text-center uppercase tracking-widest bg-red-500/10 p-4 rounded-xl border border-red-500/20";
-                errDiv.classList.remove('hidden'); 
-            } finally { 
-                btn.disabled = false; 
-                btn.innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Criar Conta e Iniciar'; 
-            }
+            const e = document.getElementById('auth-email').value, p = document.getElementById('auth-password').value, b = document.getElementById('btn-auth'), err = document.getElementById('auth-error');
+            if(!e || !p) return; b.innerText = "⏳..."; err.classList.add('hidden');
+            try { 
+                let r; if(authMode === 'login') r = await auth.signInWithPassword({ email: e, password: p }); else r = await auth.signUp({ email: e, password: p });
+                if(r.error) throw r.error; if(authMode === 'signup') { err.innerText = "✓ CONFIRME SEU E-MAIL!"; err.classList.remove('hidden'); }
+            } catch(x) { err.innerText = x.message; err.classList.remove('hidden'); } finally { b.innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Cadastrar'; }
         }
 
-        async function logout() { if (confirm("Sair?")) { document.getElementById('page-auth').classList.remove('hidden'); document.getElementById('app-main').classList.add('hidden'); await auth.signOut(); localStorage.clear(); sessionStorage.clear(); location.reload(); } }
-
-        auth.onAuthStateChange(async (event, session) => {
-            if (session) { currentUser = session.user; document.getElementById('page-auth').classList.add('hidden'); document.getElementById('app-main').classList.remove('hidden'); await carregarDadosCloud(); }
+        auth.onAuthStateChange(async (ev, s) => {
+            if(s) { currentUser = s.user; document.getElementById('page-auth').classList.add('hidden'); document.getElementById('app-main').classList.remove('hidden'); await carregarDadosCloud(); }
             else { currentUser = null; document.getElementById('page-auth').classList.remove('hidden'); document.getElementById('app-main').classList.add('hidden'); }
         });
 
-        async function salvarPerfilCloud() {
-            if (!currentUser) return;
-            const campos = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'];
-            const cfg = {}; campos.forEach(id => { const el = document.getElementById(id); if(el) cfg[id] = el.value; });
-            await db.from('profiles').upsert({ id: currentUser.id, config: cfg });
-        }
-
+        async function salvarPerfilCloud() { if(!currentUser) return; const save = {}; ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'modeloByd', 'anoModelo', 'situacaoVeiculo'].forEach(id => { const el = document.getElementById(id); if(el) save[id] = el.value; }); await db.from('profiles').upsert({ id: currentUser.id, config: save }); }
         async function carregarDadosCloud() {
-            if (!currentUser) return;
-            const { data: prof } = await db.from('profiles').select('config').eq('id', currentUser.id).single();
-            if (prof?.config) { Object.keys(prof.config).forEach(id => { const el = document.getElementById(id); if (el) el.value = prof.config[id]; }); }
-            const { data: ops } = await db.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-            logsGanhos = ops || [];
-            const { data: recs } = await db.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-            logs = recs || [];
+            if(!currentUser) return;
+            const { data: p } = await db.from('profiles').select('config').eq('id', currentUser.id).single(); if(p?.config) Object.keys(p.config).forEach(id => { const el = document.getElementById(id); if(el) el.value = p.config[id]; });
+            const { data: o } = await db.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); logsGanhos = o || [];
+            const { data: r } = await db.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); logs = r || [];
             calcular(); renderLogs(); renderGanhos();
         }
 
-        function switchPage(pId) {
-            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-' + pId).classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active', 'text-indigo-400'); b.classList.add('text-slate-500'); });
-            const activeB = document.getElementById('nav-' + pId); activeB.classList.add('nav-active'); activeB.classList.remove('text-slate-500');
-            if (pId === 'recargas') renderLogs(); calcular(); window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if (e.target.id !== 'log-valor') calcular(); }
+        async function logout() { if(confirm("Sair?")) { await auth.signOut(); location.reload(); } }
+        function switchPage(p) { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); const ab = document.getElementById('nav-'+p); ab.classList.add('nav-active'); ab.classList.remove('text-slate-500'); if(p==='recargas') renderLogs(); calcular(); }
+        function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if(e.target.id!=='log-valor') calcular(); }
         function formatToFloat(s) { if (!s) return 0; return parseFloat(s.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0; }
         const fmt = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         function calcular() {
-            const save = {}; document.querySelectorAll('input, select').forEach(i => { if(i.id) save[i.id] = i.value; });
             salvarPerfilCloud();
-            const vC = formatToFloat(save.vCarro), fat = formatToFloat(save.faturamento), fatAc = formatToFloat(save.fatAcumulado), fatH = formatToFloat(save.fatHoje);
-            const situ = document.getElementById('situacaoVeiculo').value, par = situ === 'quitado' ? 0 : formatToFloat(save.parcela);
-            const seg = formatToFloat(save.seguro), manu = formatToFloat(save.manutencao), kmM = parseFloat(save.kmMensal) || 0, depA = parseFloat(save.modeloByd);
-            let cEnR = 0; logs.forEach(l => cEnR += l.value); let cF = logs.length > 0 ? cEnR : formatToFloat(save.energiaManual);
-            const tG = fatAc + fatH, fF = Math.max(tG, fat), dM = (vC * depA) / 12, op = fF - seg - cF, cx = op - par, rl = cx - dM - manu, cp = kmM > 0 ? (par + seg + manu + cF + dM) / kmM : 0;
-            const ids = { 'resFatTotal': fF, 'resOperacional': op, 'resCaixa': cx, 'resReal': rl, 'resCPK': cp };
-            Object.keys(ids).forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerText = `R$ ${fmt(ids[id])}`; });
+            const vC = formatToFloat(document.getElementById('vCarro').value), fat = formatToFloat(document.getElementById('faturamento').value), fatAc = formatToFloat(document.getElementById('fatAcumulado').value), fatHoje = formatToFloat(document.getElementById('fatHoje').value);
+            const situ = document.getElementById('situacaoVeiculo').value, par = situ === 'quitado' ? 0 : formatToFloat(document.getElementById('parcela').value);
+            const seg = formatToFloat(document.getElementById('seguro').value), manu = formatToFloat(document.getElementById('manutencao').value), kmM = parseFloat(document.getElementById('kmMensal').value) || 0, depA = parseFloat(document.getElementById('modeloByd').value);
+            let cRec = 0; logs.forEach(l => cRec += l.value); let cF = logs.length > 0 ? cRec : formatToFloat(document.getElementById('energiaManual').value);
+            const tG = fatAc + fatHoje, fF = Math.max(tG, fat), depM = (vC * depA) / 12, op = fF - seg - cF, cx = op - par, rl = cx - depM - manu, cpk = kmM > 0 ? (par + seg + manu + cF + depM) / kmM : 0;
+            document.getElementById('secaoDivida').style.display = situ === 'quitado' ? 'none' : 'block';
+            const ids = { 'resFatTotal': fF, 'resOperacional': op, 'resCaixa': cx, 'resReal': rl, 'resCPK': cpk };
+            Object.keys(ids).forEach(id => { const el = document.getElementById(id); if(el) el.innerText = `R$ ${fmt(ids[id])}`; });
             const rM = document.getElementById('resFaltaMeta'), rD = document.getElementById('resDiaria');
-            if (rM) { if (tG >= fat) { rM.innerText = "META ATINGIDA!"; rD.innerText = `EXCESSO: R$ ${fmt(tG - fat)}`; } else { rM.innerText = `FALTAM R$ ${fmt(fat - tG)}`; rD.innerText = `Média: R$ ${fmt((fat-tG)/(30-new Date().getDate()+1))}/dia`; } }
+            if(tG >= fat) { rM.innerText = "META ATINGIDA!"; rD.innerText = `EXCESSO: R$ ${fmt(tG - fat)}`; } else { rM.innerText = `FALTAM R$ ${fmt(fat-tG)}`; rD.innerText = `MÉDIA: R$ ${fmt((fat-tG)/(30-new Date().getDate()+1))}/DIA`; }
         }
-
-        function setTipo(t) { tipoLancamento = t; document.getElementById('btnTipoGanho').className = t === 'ganho' ? "px-4 py-1 rounded-md text-[8px] font-black uppercase bg-blue-600 text-white" : "px-4 py-1 rounded-md text-[8px] font-black uppercase text-slate-500"; document.getElementById('btnTipoCusto').className = t === 'custo' ? "px-4 py-1 rounded-md text-[8px] font-black uppercase bg-red-600 text-white" : "px-4 py-1 rounded-md text-[8px] font-black uppercase text-slate-500"; }
-        function adicionarCorrida() { const i = document.getElementById('valCorrida'), v = formatToFloat(i.value); if (v <= 0) return; corridasDia.unshift({ v, t: tipoLancamento }); i.value = ""; renderCorridas(); calcular(); }
-        function removerCorrida(i) { corridasDia.splice(i, 1); renderCorridas(); calcular(); }
-        function renderCorridas() { const f = document.getElementById('feedCorridas'); f.innerHTML = ""; let t = 0; corridasDia.forEach((c, idx) => { t += (c.t === 'ganho' ? c.v : -c.v); f.innerHTML += `<div class="bg-slate-900 border ${c.t === 'ganho' ? 'border-blue-500/20 text-blue-400' : 'border-red-500/20 text-red-400'} px-2 py-2 rounded-lg flex justify-between items-center text-[9px] font-bold">R$ ${fmt(c.v)} <button onclick="removerCorrida(${idx})">×</button></div>`; }); document.getElementById('fatHoje').value = t !== 0 ? "R$ " + fmt(t) : ""; }
 
         async function buscarFipe() {
-            const modSel = document.getElementById('modeloByd');
-            const modelText = modSel.options[modSel.selectedIndex].text;
-            const anoSel = document.getElementById('anoModelo');
-            const anoVal = anoSel.value;
-            const btn = document.getElementById('btn-fipe');
-            
-            const fipeModels = {
-                "Dolphin Mini": 10986, "Dolphin GS/EV": 10813, "Dolphin Plus": 10427,
-                "Song Plus": 11084, "Yuan Plus": 9975, "Seal": 10833,
-                "Tan EV": 9775, "Han EV": 9860, "King GL": 11078, "King GS": 11079
-            };
-
-            const modelKey = Object.keys(fipeModels).find(m => modelText.includes(m));
-            const modelId = fipeModels[modelKey];
-            if (!modelId) return alert("Modelo não mapeado para Fipe.");
-
-            // Identificar sufixo (4 elétrico, 6 híbrido)
-            const isHybrid = modelText.includes("Song") || modelText.includes("King");
-            const suffix = isHybrid ? "6" : "4";
-            
-            let yearCode = "";
-            if (anoVal === "Zero Km" || anoVal === "2026") yearCode = "32000-" + suffix;
-            else if (anoVal === "2025") yearCode = "2025-" + suffix;
-            else yearCode = anoVal + "-" + suffix;
-
-            btn.innerText = "⏳ Buscando...";
-            try {
-                const url = `https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos/${modelId}/anos/${yearCode}`;
-                const res = await fetch(url);
-                if (!res.ok) throw new Error("Combinação Modelo/Ano não encontrada na API.");
-                const data = await res.json();
-                document.getElementById('vCarro').value = data.Valor;
-                alert(`✓ Sucesso!\n\n${data.Modelo}\n${data.AnoModelo}\nRef: ${data.MesReferencia}\nValor: ${data.Valor}`);
-                calcular(); await salvarPerfilCloud();
-            } catch (e) { alert("Erro Fipe: " + e.message); }
-            finally { btn.innerText = "🔍 Consultar Tabela FIPE"; }
+            const btn = document.getElementById('btnFipe'), mod = document.getElementById('modeloByd'), mTxt = mod.options[mod.selectedIndex].text.split('(')[0].trim(), ano = document.getElementById('anoModelo'), aTxt = ano.options[ano.selectedIndex].text.split('(')[0].trim();
+            const ids = { "Dolphin Mini": 10986, "Dolphin GS": 10813, "Dolphin Plus": 10878, "Yuan Pro": 11199, "Yuan Plus": 10184, "Song Plus": 11084, "King": 11079, "Seal": 10833, "Han": 9860, "Tan": 9775 };
+            const mId = ids[mTxt]; if(!mId) return alert("Erro Mapeamento");
+            const sfx = (mTxt.includes("Song") || mTxt.includes("King")) ? "6" : "4";
+            const code = (aTxt === "Zero KM" || aTxt === "2026") ? "32000-" + sfx : (aTxt === "2025" ? "2025-" + sfx : aTxt + "-" + sfx);
+            btn.innerText = "⏳..."; try { const r = await fetch(`https://parallelum.com.br/fipe/api/v1/carros/marcas/238/modelos/${mId}/anos/${code}`); if(!r.ok) throw 0; const d = await r.json(); document.getElementById('vCarro').value = d.Valor; calcular(); alert("Sucesso Fipe!"); } catch(x) { alert("Erro Fipe"); } finally { btn.innerText = "🔍 Consultar Valor Real na Tabela FIPE"; }
         }
 
-        async function salvarGanho() {
-            if (corridasDia.length === 0) return;
-            let t = 0; corridasDia.forEach(c => t += (c.t === 'ganho' ? c.v : -c.v));
-            const { error } = await db.from('operations').insert({ user_id: currentUser.id, value: t, type: t >= 0 ? 'ganho' : 'custo', date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) });
-            if (error) return alert("Erro Cloud: " + error.message);
-            const inputA = document.getElementById('fatAcumulado'); inputA.value = "R$ " + fmt(formatToFloat(inputA.value) + t);
-            await salvarPerfilCloud(); corridasDia = []; renderCorridas(); await carregarDadosCloud(); alert("✓ Salvo com sucesso!");
-        }
+        function setTipo(t) { tipoLancamento = t; document.getElementById('btnTipoGanho').className = t==='ganho'?"px-5 py-2 rounded-md text-[8px] font-black uppercase bg-blue-600 text-white shadow-lg":"px-5 py-2 rounded-md text-[8px] font-black uppercase text-slate-500"; document.getElementById('btnTipoCusto').className = t==='custo'?"px-5 py-2 rounded-md text-[8px] font-black uppercase bg-red-600 text-white shadow-lg":"px-5 py-2 rounded-md text-[8px] font-black uppercase text-slate-500"; }
+        function adicionarCorrida() { const i = document.getElementById('valCorrida'), v = formatToFloat(i.value); if(v<=0) return; corridasDia.unshift({ v, t: tipoLancamento }); i.value = ""; renderCorridas(); calcular(); }
+        function removerCorrida(i) { corridasDia.splice(i, 1); renderCorridas(); calcular(); }
+        function renderCorridas() { const f = document.getElementById('feedCorridas'); f.innerHTML = ""; let t = 0; corridasDia.forEach((c, idx) => { t += (c.t==='ganho'?c.v:-c.v); f.innerHTML += `<div class="bg-slate-950 border ${c.t==='ganho'?'border-blue-500/20 text-blue-400':'border-red-500/20 text-red-400'} px-2 py-2 rounded-xl flex justify-between items-center text-[9px] font-black">R$ ${fmt(c.v)} <button onclick="removerCorrida(${idx})">×</button></div>`; }); document.getElementById('fatHoje').value = t!==0?"R$ "+fmt(t):""; }
 
-        async function salvarLog() {
-            const vI = document.getElementById('log-valor'), kI = document.getElementById('log-km'), v = formatToFloat(vI.value), k = parseInt(kI.value);
-            if (!v || !k) return;
-            const { error } = await db.from('recharges').insert({ user_id: currentUser.id, value: v, km: k, date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) });
-            if (error) return alert("Erro Recarga: " + error.message);
-            vI.value = ""; kI.value = ""; await carregarDadosCloud(); alert("✓ Sucesso!");
-        }
-
-        async function resetGeralCloud() {
-            if (confirm("⚠️ ATENÇÃO: Isso apagará permanentemente todos os registros de Ganhos, Recargas e seu Perfil no banco de dados Cloud. Deseja continuar?")) {
-                if (confirm("TEM CERTEZA? Esta ação não pode ser desfeita.")) {
-                    try {
-                        await db.from('operations').delete().eq('user_id', currentUser.id);
-                        await db.from('recharges').delete().eq('user_id', currentUser.id);
-                        await db.from('profiles').delete().eq('id', currentUser.id);
-                        alert("✓ Banco de dados limpo com sucesso! O cockpit será reiniciado.");
-                        location.reload();
-                    } catch (e) { alert("Erro ao limpar banco: " + e.message); }
-                }
-            }
-        }
-
-        function renderGanhos() {
-            const c = document.getElementById('listaGanhos'); document.getElementById('contDias').innerText = `${logsGanhos.length} REGISTROS`;
-            c.innerHTML = logsGanhos.length === 0 ? `<div class="col-span-full py-4 text-center text-[10px] text-slate-700 italic">Vazio</div>` : "";
-            logsGanhos.forEach(g => { c.innerHTML += `<div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex flex-col items-center"><span class="text-[7px] text-slate-600">${g.date}</span><span class="text-xs font-black ${g.value >= 0 ? 'text-green-500' : 'text-red-500'}">R$ ${fmt(g.value)}</span></div>`; });
-        }
-
-        function renderLogs() {
-            const h = document.getElementById('historicoLogs'); document.getElementById('contCargas').innerText = `${logs.length} CARGAS`; h.innerHTML = "";
-            logs.forEach((l, i) => {
-                let e = ""; if (logs[i + 1]) { const d = l.km - logs[i + 1].km; if (d > 0) e = `<span class="text-blue-500 font-bold">R$ ${(l.value / d).toFixed(2)}/km</span>`; }
-                h.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center mb-2"><div><p class="text-[8px] text-slate-500">${l.date}</p><p class="text-lg font-black">R$ ${fmt(l.value)}</p></div><div class="text-right"><p class="text-[8px] text-slate-500">KM ${l.km}</p>${e}</div></div>`;
-            });
-        }
-
-        async function limparGanhos() { if(confirm("Limpar?")) { await db.from('operations').delete().eq('user_id', currentUser.id); await carregarDadosCloud(); } }
-        async function limparLogs() { if(confirm("Limpar?")) { await db.from('recharges').delete().eq('user_id', currentUser.id); await carregarDadosCloud(); } }
-
+        async function salvarGanho() { if(corridasDia.length===0) return; let t = 0; corridasDia.forEach(c => t += (c.t==='ganho'?c.v:-c.v)); const { error } = await db.from('operations').insert({ user_id: currentUser.id, value: t, type: t>=0?'ganho':'custo', date: new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'}) }); if(error) return alert(error.message); const inputA = document.getElementById('fatAcumulado'); inputA.value = "R$ "+fmt(formatToFloat(inputA.value)+t); await salvarPerfilCloud(); corridasDia=[]; renderCorridas(); await carregarDadosCloud(); alert("Salvo!"); }
+        async function salvarLog() { const vI = document.getElementById('log-valor'), kI = document.getElementById('log-km'), v = formatToFloat(vI.value), k = parseInt(kI.value); if(!v || !k) return; const { error } = await db.from('recharges').insert({ user_id: currentUser.id, value: v, km: k, date: new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) }); if(error) return alert(error.message); vI.value=""; kI.value=""; await carregarDadosCloud(); alert("Salvo!"); }
+        async function resetGeralCloud() { if(confirm("Apagar tudo na Nuvem?")) { await db.from('operations').delete().eq('user_id', currentUser.id); await db.from('recharges').delete().eq('user_id', currentUser.id); await db.from('profiles').delete().eq('id', currentUser.id); location.reload(); } }
+        function renderGanhos() { const c = document.getElementById('listaGanhos'); document.getElementById('contDias').innerText = `${logsGanhos.length} LANÇAMENTOS`; c.innerHTML = ""; logsGanhos.forEach(g => { c.innerHTML += `<div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex flex-col items-center"><span class="text-[7px] text-slate-600 font-bold">${g.date}</span><span class="text-xs font-black ${g.value>=0?'text-green-500':'text-red-500'}">R$ ${fmt(g.value)}</span></div>`; }); }
+        function renderLogs() { const h = document.getElementById('historicoLogs'); document.getElementById('contCargas').innerText = `${logs.length} CARGAS`; h.innerHTML = ""; logs.forEach((l, i) => { let e = ""; if(logs[i+1]) { const d = l.km - logs[i+1].km; if(d>0) e=`<span class="text-blue-500 font-bold">R$ ${(l.value/d).toFixed(2)}/km</span>`; } h.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center mb-2"><div><p class="text-[8px] text-slate-500 font-black">${l.date}</p><p class="text-lg font-black">R$ ${fmt(l.value)}</p></div><div class="text-right"><p class="text-[8px] text-slate-500">KM ${l.km}</p>${e}</div></div>`; }); }
+        async function limparGanhos() { if(confirm("Limpar extrato?")) { await db.from('operations').delete().eq('user_id', currentUser.id); await carregarDadosCloud(); } }
+        async function limparLogs() { if(confirm("Zerar recargas?")) { await db.from('recharges').delete().eq('user_id', currentUser.id); await carregarDadosCloud(); } }
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW Erro', e)); }); }
     </script>
 </body>
