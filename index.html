@@ -14,22 +14,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root { --coral-400: #fb7185; --coral-500: #f43f5e; --coral-600: #e11d48; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .view-content { animation: fadeIn 0.4s ease-out; }
-        .hidden { display: none !important; }
-        .nav-active { color: #4f46e5; border-top: 2px solid #4f46e5; background: rgba(79, 70, 229, 0.05); }
-        .nav-active svg { color: #4f46e5; filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.5)); }
-        body { padding-bottom: 180px; padding-bottom: calc(180px + env(safe-area-inset-bottom)); overflow-y: auto !important; height: auto !important; min-height: 100%; }
-        nav { padding-bottom: env(safe-area-inset-bottom) !important; min-height: calc(75px + env(safe-area-inset-bottom)); }
-        @media (min-width: 1024px) { body { padding-bottom: 0; padding-top: 80px; } nav { padding-bottom: 0 !important; min-height: auto; } }
-        #historicoLogs::-webkit-scrollbar { width: 4px; }
-        #historicoLogs::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .card-glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.05); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="bg-slate-950 text-slate-200 font-sans p-2 md:p-8">
@@ -206,7 +191,7 @@
     <script>
         const SUPABASE_URL = 'https://kgwswvnyhysuazdqtdww.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd3N3dm55aHlzdWF6ZHF0ZHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzA1OTcsImV4cCI6MjA5MTk0NjU5N30.9CUflkb0U7JMCyqYxSQ09Ca6Bgcf8wE8dG4P02MDL5g';
-        let db, auth, currentUser, authMode = 'login', logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho', saveTimeout;
+        let db, auth, currentUser, authMode = 'login', logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho', saveTimeout, loadingData = false, salvandoRecarga = false;
         function setSyncStatus(s) { 
             const el = document.getElementById('sync-status'); if(!el) return;
             if(s==='saving') { el.innerText = '⏳ Salvando...'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-yellow-500 animate-pulse'; }
@@ -283,7 +268,8 @@
         }
 
         async function carregarDadosCloud() {
-            if(!currentUser) return;
+            if(!currentUser || loadingData) return;
+            loadingData = true;
             setSyncStatus('loading');
             try {
                 const { data: p, error: pErr } = await db.from('profiles').select('config').eq('id', currentUser.id).single(); 
@@ -301,6 +287,7 @@
                 calcular(); renderLogs(); renderGanhos();
                 setSyncStatus('synced');
             } catch (err) { console.error("Erro ao carregar dados:", err); setSyncStatus('error'); }
+            finally { loadingData = false; }
         }
 
         async function encerrarSessao() { 
@@ -389,7 +376,10 @@
             let t = 0; corridasDia.forEach(c => t += (c.t==='ganho'?c.v:-c.v)); 
             const entry = { user_id: currentUser.id, value: t, type: t>=0?'ganho':'custo', date: new Date().toISOString().split('T')[0] };
             const { error } = await db.from('operations').insert(entry); 
-            if(error) { console.error(error); return alert("Erro Banco Dados (Ganhos): " + error.message + " (Cód: " + error.code + ")"); }
+            if(error) { 
+                if(error.message.includes("Lock")) { setTimeout(salvarGanho, 500); return; }
+                console.error(error); return alert("Erro Banco Dados (Ganhos): " + error.message); 
+            }
             const inputA = document.getElementById('fatAcumulado'); 
             inputA.value = "R$ "+fmt(formatToFloat(inputA.value)+t); 
             await salvarPerfilCloud(); corridasDia=[]; renderCorridas(); await carregarDadosCloud(); alert("✓ OPERAÇÃO SALVA NA NUVEM!"); 
@@ -399,9 +389,15 @@
             if(!currentUser) return alert("Erro: Usuário não autenticado.");
             const vI = document.getElementById('log-valor'), kI = document.getElementById('log-km'), v = formatToFloat(vI.value), k = parseInt(kI.value); 
             if(!v || !k) return alert("Preencha Valor e KM!"); 
+            if(salvandoRecarga) return;
+            salvandoRecarga = true;
             const entry = { user_id: currentUser.id, value: v, km: k, date: new Date().toISOString() };
             const { error } = await db.from('recharges').insert(entry); 
-            if(error) { console.error(error); return alert("Erro Banco Dados (Recargas): " + error.message + " (Cód: " + error.code + ")"); }
+            salvandoRecarga = false;
+            if(error) { 
+                if(error.message.includes("Lock")) { setTimeout(salvarLog, 500); return; }
+                console.error(error); return alert("Erro Banco Dados (Recargas): " + error.message); 
+            }
             vI.value=""; kI.value=""; await carregarDadosCloud(); alert("✓ RECARGA SALVA NA NUVEM!"); 
         }
         async function resetGeralCloud() { if(confirm("Apagar tudo na Nuvem?")) { await db.from('operations').delete().eq('user_id', currentUser.id); await db.from('recharges').delete().eq('user_id', currentUser.id); await db.from('profiles').delete().eq('id', currentUser.id); location.reload(); } }
