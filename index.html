@@ -66,21 +66,25 @@
                         <span class="self-start text-indigo-400 font-black text-[8px] italic bg-indigo-900/30 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Faturamento</span>
                         <h2 class="text-indigo-400 text-[10px] font-black uppercase mb-1">Total Gerado</h2>
                         <div id="resFatTotal" class="text-2xl md:text-3xl font-black text-indigo-300 italic">R$ 0,00</div>
+                        <div class="card-breakdown" id="breakdown-fat"></div>
                     </div>
                     <div class="group relative bg-[#0a0f1e] p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col cursor-help overflow-hidden">
                         <span class="self-start text-blue-400 font-black text-[8px] italic bg-blue-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Operação</span>
                         <h2 class="text-blue-400 text-[10px] font-black uppercase mb-1">Ganho de Trabalho</h2>
                         <div id="resOperacional" class="text-2xl md:text-3xl font-black text-blue-300 italic">R$ 0,00</div>
+                        <div class="card-breakdown" id="breakdown-oper"></div>
                     </div>
                     <div class="group relative bg-[#0a0f1e] p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col cursor-help overflow-hidden">
                         <span class="self-start text-slate-500 font-black text-[8px] italic bg-slate-800/50 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Caixa</span>
                         <h2 class="text-slate-500 text-[10px] font-black uppercase mb-1">Dinheiro no Bolso</h2>
                         <div id="resCaixa" class="text-2xl md:text-3xl font-black text-white">R$ 0,00</div>
+                        <div class="card-breakdown" id="breakdown-caixa"></div>
                     </div>
                     <div class="group bg-[#0a0f1e] p-6 rounded-3xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden">
                         <span class="self-start text-green-500 font-black text-[8px] italic bg-green-900/10 px-2 py-0.5 rounded mb-3 uppercase tracking-widest">Real</span>
                         <h2 class="text-green-500 text-[10px] font-black uppercase mb-1">Lucro Patrimonial Final</h2>
                         <div id="resReal" class="text-2xl md:text-3xl font-black text-green-400">R$ 0,00</div>
+                        <div class="card-breakdown" id="breakdown-real"></div>
                     </div>
                 </div>
             </div>
@@ -187,46 +191,67 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const SUPABASE_URL = 'https://kgwswvnyhysuazdqtdww.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd3N3dm55aHlzdWF6ZHF0ZHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzA1OTcsImV4cCI6MjA5MTk0NjU5N30.9CUflkb0U7JMCyqYxSQ09Ca6Bgcf8wE8dG4P02MDL5g';
-        let db, auth, currentUser, authMode = 'login', logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho', saveTimeout, loadingData = false, salvandoRecarga = false;
+        const API_BASE = '';
+        let currentUser = null, authMode = 'login', logs = [], logsGanhos = [], corridasDia = [], tipoLancamento = 'ganho', saveTimeout, loadingData = false, salvandoRecarga = false;
+
         function setSyncStatus(s) { 
             const el = document.getElementById('sync-status'); if(!el) return;
             if(s==='saving') { el.innerText = '⏳ Salvando...'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-yellow-500 animate-pulse'; }
-            else if(s==='synced') { el.innerText = '☁️ Nuvem OK'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-green-500'; }
-            else if(s==='error') { el.innerText = '⚠️ Erro Cloud'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-red-500'; }
+            else if(s==='synced') { el.innerText = '✓ SQLite OK'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-green-500'; }
+            else if(s==='error') { el.innerText = '⚠️ Erro Local'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-red-500'; }
             else if(s==='loading') { el.innerText = '⏳ Carregando...'; el.className = 'ml-2 text-[8px] font-bold uppercase tracking-widest text-blue-400 animate-pulse'; }
         }
 
-        try { const s = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); db = s; auth = s.auth; } catch (e) { alert("Erro Cloud: " + e.message); }
+        async function checkAuth() {
+            try {
+                const r = await fetch(`${API_BASE}/api/auth/me`);
+                const d = await r.json();
+                if (d.user) {
+                    currentUser = d.user;
+                    document.getElementById('page-auth').classList.add('hidden');
+                    document.getElementById('app-main').classList.remove('hidden');
+                    carregarCacheLocal();
+                    calcular();
+                    await carregarDadosCloud();
+                } else {
+                    currentUser = null;
+                    document.getElementById('page-auth').classList.remove('hidden');
+                    document.getElementById('app-main').classList.add('hidden');
+                }
+            } catch (e) {
+                console.error("Erro auth check", e);
+            }
+        }
 
-        async function toggleAuthMode() { authMode = authMode === 'login' ? 'signup' : 'login'; document.getElementById('auth-title').innerText = authMode === 'login' ? 'GESTÃO DE ATIVOS CLOUD' : 'CRIAR CONTA'; document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Cadastrar'; }
+        async function toggleAuthMode() { 
+            authMode = authMode === 'login' ? 'signup' : 'login'; 
+            document.getElementById('auth-title').innerText = authMode === 'login' ? 'GESTÃO DE ATIVOS SQLITE' : 'CRIAR CONTA LOCAL'; 
+            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Cadastrar'; 
+        }
+
         async function handleAuth() {
             const e = document.getElementById('auth-email').value, p = document.getElementById('auth-password').value, b = document.getElementById('btn-auth'), err = document.getElementById('auth-error');
             if(!e || !p) return; b.innerText = "⏳..."; err.classList.add('hidden');
+            const url = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
             try { 
-                let r; if(authMode === 'login') r = await auth.signInWithPassword({ email: e, password: p }); else r = await auth.signUp({ email: e, password: p });
-                if(r.error) throw r.error; if(authMode === 'signup') { err.innerText = "✓ CONFIRME SEU E-MAIL!"; err.classList.remove('hidden'); }
+                const r = await fetch(`${API_BASE}${url}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: e, password: p })
+                });
+                const d = await r.json();
+                if(!r.ok) throw new Error(d.error || 'Erro na autenticação');
+                
+                if(authMode === 'signup') { 
+                    err.innerText = "✓ CONTA CRIADA! AGORA ENTRE."; err.classList.remove('hidden'); 
+                    authMode = 'login';
+                    toggleAuthMode();
+                } else {
+                    await checkAuth();
+                }
             } catch(x) { err.innerText = x.message; err.classList.remove('hidden'); } finally { b.innerText = authMode === 'login' ? 'Entrar no Cockpit' : 'Cadastrar'; }
         }
-
-        auth.onAuthStateChange(async (ev, s) => {
-            if(s && ev !== 'SIGNED_OUT') { 
-                currentUser = s.user; 
-                document.getElementById('page-auth').classList.add('hidden'); 
-                document.getElementById('app-main').classList.remove('hidden'); 
-                carregarCacheLocal();
-                calcular();
-                await carregarDadosCloud(); 
-            } else { 
-                currentUser = null; 
-                document.getElementById('page-auth').classList.remove('hidden'); 
-                document.getElementById('app-main').classList.add('hidden'); 
-                if(ev === 'SIGNED_OUT') limparInterface();
-            }
-        });
 
         async function salvarPerfilCloud() { 
             if(!currentUser) return; 
@@ -236,12 +261,18 @@
                 const el = document.getElementById(id); 
                 if(el && el.value) save[id] = el.value; 
             }); 
-            if(Object.keys(save).length > 0) {
+            try {
+                const r = await fetch(`${API_BASE}/api/profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ config: save })
+                });
+                if(!r.ok) throw new Error();
                 localStorage.setItem('byd_config', JSON.stringify(save));
-                const { error } = await db.from('profiles').upsert({ id: currentUser.id, config: save });
-                if(error) { console.warn("Erro Sincronia Perfil:", error.message); setSyncStatus('error'); }
-                else { setSyncStatus('synced'); }
-            } else { setSyncStatus('synced'); }
+                setSyncStatus('synced');
+            } catch (e) {
+                setSyncStatus('error');
+            }
         }
 
         function salvarLocalmente() {
@@ -251,8 +282,6 @@
                 if(el && el.value) save[id] = el.value; 
             });
             localStorage.setItem('byd_config', JSON.stringify(save));
-            localStorage.setItem('byd_logs_ganhos', JSON.stringify(logsGanhos));
-            localStorage.setItem('byd_recharges', JSON.stringify(logs));
         }
 
         function carregarCacheLocal() {
@@ -263,8 +292,6 @@
                     if(el) el.value = p[id]; 
                 });
             }
-            logsGanhos = JSON.parse(localStorage.getItem('byd_logs_ganhos')) || [];
-            logs = JSON.parse(localStorage.getItem('byd_recharges')) || [];
         }
 
         async function carregarDadosCloud() {
@@ -272,17 +299,22 @@
             loadingData = true;
             setSyncStatus('loading');
             try {
-                const { data: p, error: pErr } = await db.from('profiles').select('config').eq('id', currentUser.id).single(); 
-                if(p?.config) {
-                    Object.keys(p.config).forEach(id => { 
+                const [rProf, rOper, rRech] = await Promise.all([
+                    fetch(`${API_BASE}/api/profile`),
+                    fetch(`${API_BASE}/api/operations`),
+                    fetch(`${API_BASE}/api/recharges`)
+                ]);
+                
+                const dProf = await rProf.json();
+                if(dProf.config) {
+                    Object.keys(dProf.config).forEach(id => { 
                         const el = document.getElementById(id); 
-                        if(el && p.config[id]) el.value = p.config[id]; 
+                        if(el && dProf.config[id]) el.value = dProf.config[id]; 
                     });
                 }
-                const { data: o } = await db.from('operations').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); 
-                logsGanhos = o || [];
-                const { data: r } = await db.from('recharges').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }); 
-                logs = r || [];
+                
+                logsGanhos = await rOper.json();
+                logs = await rRech.json();
                 
                 calcular(); renderLogs(); renderGanhos();
                 setSyncStatus('synced');
@@ -293,45 +325,61 @@
         async function encerrarSessao() { 
             if(confirm("Deseja realmente sair do Cockpit?")) { 
                 try {
+                    await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST' });
                     document.getElementById('app-main').classList.add('hidden');
                     document.getElementById('page-auth').classList.remove('hidden');
-                    await auth.signOut();
+                    localStorage.clear();
+                    limparInterface();
+                    window.location.reload();
                 } catch (e) {
                     console.error("Erro ao sair:", e);
-                } finally {
-                    if ('serviceWorker' in navigator) {
-                        const regs = await navigator.serviceWorker.getRegistrations();
-                        for(let reg of regs) await reg.unregister();
-                    }
-                    if ('caches' in window) {
-                        const keys = await caches.keys();
-                        for(let key of keys) await caches.delete(key);
-                    }
-                    document.cookie.split(";").forEach(c => {
-                        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                    });
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    limparInterface();
-                    window.location.replace(window.location.pathname);
                 }
             }
         }
+
         function limparInterface() {
             const ids = ['vCarro', 'vEntrada', 'faturamento', 'fatAcumulado', 'fatHoje', 'parcela', 'energiaManual', 'seguro', 'manutencao', 'kmMensal', 'log-valor', 'log-km', 'valCorrida', 'auth-email', 'auth-password'];
             ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
             ['resFatTotal', 'resOperacional', 'resCaixa', 'resReal', 'resCPK'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = 'R$ 0,00'; });
-            document.getElementById('resFaltaMeta').innerText = 'Carregando Nuvem...';
-            document.getElementById('resDiaria').innerText = 'Sincronizando...';
+            document.getElementById('resFaltaMeta').innerText = 'Carregando SQL...';
+            document.getElementById('resDiaria').innerText = 'Lendo SQLite...';
             ['feedCorridas', 'listaGanhos', 'historicoLogs'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ''; });
             if(document.getElementById('contCargas')) document.getElementById('contCargas').innerText = '0 Cargas';
             if(document.getElementById('contDias')) document.getElementById('contDias').innerText = '0 LANÇAMENTOS';
             logs = []; logsGanhos = []; corridasDia = [];
         }
-        function switchPage(p) { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); const ab = document.getElementById('nav-'+p); ab.classList.add('nav-active'); ab.classList.remove('text-slate-500'); if(p==='recargas') renderLogs(); calcular(false); }
-        function mascaraMoeda(e) { let v = e.target.value.replace(/\D/g, ""); const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); e.target.value = v ? "R$ " + r : ""; if(e.target.id!=='log-valor') calcular(true); }
+
+        function switchPage(p) { 
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); 
+            document.getElementById('page-'+p).classList.remove('hidden'); 
+            document.querySelectorAll('nav button').forEach(b => { b.classList.remove('nav-active'); b.classList.add('text-slate-500'); }); 
+            const ab = document.getElementById('nav-'+p); 
+            ab.classList.add('nav-active'); 
+            ab.classList.remove('text-slate-500'); 
+            if(p==='recargas') renderLogs(); 
+            calcular(false); 
+        }
+
+        function mascaraMoeda(e) { 
+            let v = e.target.value.replace(/\D/g, ""); 
+            const r = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(v) / 100); 
+            e.target.value = v ? "R$ " + r : ""; 
+            if(e.target.id!=='log-valor') calcular(true); 
+        }
+
         function formatToFloat(s) { if (!s) return 0; return parseFloat(s.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0; }
         const fmt = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        function updateBreakdown(id, items) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.innerHTML = items.map(item => `
+                <div class="breakdown-item">
+                    <span class="breakdown-label">${item.label}</span>
+                    <span class="breakdown-value">-${item.value}</span>
+                </div>
+            `).join('');
+        }
 
         function calcular(manual = false) {
             const vC = formatToFloat(document.getElementById('vCarro').value), fat = formatToFloat(document.getElementById('faturamento').value), fatAc = formatToFloat(document.getElementById('fatAcumulado').value), fatHoje = formatToFloat(document.getElementById('fatHoje').value);
@@ -349,6 +397,12 @@
             const rM = document.getElementById('resFaltaMeta'), rD = document.getElementById('resDiaria');
             if(tG >= fat) { rM.innerText = "META ATINGIDA!"; rD.innerText = `EXCESSO: R$ ${fmt(tG - fat)}`; } else { rM.innerText = `FALTAM R$ ${fmt(fat-tG)}`; rD.innerText = `MÉDIA: R$ ${fmt((fat-tG)/(30-new Date().getDate()+1))}/DIA`; }
             
+            // Update Breakdowns
+            updateBreakdown('breakdown-fat', [{ label: 'Seguro Mensal', value: 'R$ '+fmt(seg) }, { label: 'Energia', value: 'R$ '+fmt(cF) }]);
+            updateBreakdown('breakdown-oper', [{ label: 'Parcela do Carro', value: 'R$ '+fmt(par) }]);
+            updateBreakdown('breakdown-caixa', [{ label: 'Depreciação', value: 'R$ '+fmt(depM) }, { label: 'Manutenção', value: 'R$ '+fmt(manu) }]);
+            updateBreakdown('breakdown-real', [{ label: 'Custos Totais', value: 'R$ '+fmt(seg+cF+par+depM+manu) }]);
+
             if(manual) {
                 salvarLocalmente();
                 clearTimeout(saveTimeout);
@@ -374,15 +428,18 @@
             if(!currentUser) return alert("Erro: Usuário não autenticado.");
             if(corridasDia.length===0) return; 
             let t = 0; corridasDia.forEach(c => t += (c.t==='ganho'?c.v:-c.v)); 
-            const entry = { user_id: currentUser.id, value: t, type: t>=0?'ganho':'custo', date: new Date().toISOString().split('T')[0] };
-            const { error } = await db.from('operations').insert(entry); 
-            if(error) { 
-                if(error.message.includes("Lock")) { setTimeout(salvarGanho, 500); return; }
-                console.error(error); return alert("Erro Banco Dados (Ganhos): " + error.message); 
-            }
-            const inputA = document.getElementById('fatAcumulado'); 
-            inputA.value = "R$ "+fmt(formatToFloat(inputA.value)+t); 
-            await salvarPerfilCloud(); corridasDia=[]; renderCorridas(); await carregarDadosCloud(); alert("✓ OPERAÇÃO SALVA NA NUVEM!"); 
+            const entry = { value: t, type: t>=0?'ganho':'custo', date: new Date().toISOString().split('T')[0] };
+            try {
+                const r = await fetch(`${API_BASE}/api/operations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(entry)
+                });
+                if(!r.ok) throw new Error();
+                const inputA = document.getElementById('fatAcumulado'); 
+                inputA.value = "R$ "+fmt(formatToFloat(inputA.value)+t); 
+                await salvarPerfilCloud(); corridasDia=[]; renderCorridas(); await carregarDadosCloud(); alert("✓ OPERAÇÃO SALVA NO SQLITE!"); 
+            } catch (e) { alert("Erro ao salvar operação"); }
         }
 
         async function salvarLog() { 
@@ -391,21 +448,54 @@
             if(!v || !k) return alert("Preencha Valor e KM!"); 
             if(salvandoRecarga) return;
             salvandoRecarga = true;
-            const entry = { user_id: currentUser.id, value: v, km: k, date: new Date().toISOString() };
-            const { error } = await db.from('recharges').insert(entry); 
-            salvandoRecarga = false;
-            if(error) { 
-                if(error.message.includes("Lock")) { setTimeout(salvarLog, 500); return; }
-                console.error(error); return alert("Erro Banco Dados (Recargas): " + error.message); 
-            }
-            vI.value=""; kI.value=""; await carregarDadosCloud(); alert("✓ RECARGA SALVA NA NUVEM!"); 
+            try {
+                const r = await fetch(`${API_BASE}/api/recharges`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value: v, km: k, date: new Date().toISOString() })
+                });
+                if(!r.ok) throw new Error();
+                vI.value=""; kI.value=""; await carregarDadosCloud(); alert("✓ RECARGA SALVA NO SQLITE!"); 
+            } catch (e) { alert("Erro ao salvar recarga"); }
+            finally { salvandoRecarga = false; }
         }
-        async function resetGeralCloud() { if(confirm("Apagar tudo na Nuvem?")) { await db.from('operations').delete().eq('user_id', currentUser.id); await db.from('recharges').delete().eq('user_id', currentUser.id); await db.from('profiles').delete().eq('id', currentUser.id); location.reload(); } }
-        function renderGanhos() { const c = document.getElementById('listaGanhos'); document.getElementById('contDias').innerText = `${logsGanhos.length} LANÇAMENTOS`; c.innerHTML = ""; logsGanhos.forEach(g => { c.innerHTML += `<div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex flex-col items-center"><span class="text-[7px] text-slate-600 font-bold">${g.date}</span><span class="text-xs font-black ${g.value>=0?'text-green-500':'text-red-500'}">R$ ${fmt(g.value)}</span></div>`; }); }
-        function renderLogs() { const h = document.getElementById('historicoLogs'); document.getElementById('contCargas').innerText = `${logs.length} CARGAS`; h.innerHTML = ""; logs.forEach((l, i) => { let e = ""; if(logs[i+1]) { const d = l.km - logs[i+1].km; if(d>0) e=`<span class="text-blue-500 font-bold">R$ ${(l.value/d).toFixed(2)}/km</span>`; } h.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center mb-2"><div><p class="text-[8px] text-slate-500 font-black">${l.date}</p><p class="text-lg font-black">R$ ${fmt(l.value)}</p></div><div class="text-right"><p class="text-[8px] text-slate-500">KM ${l.km}</p>${e}</div></div>`; }); }
-        async function limparGanhos() { if(confirm("Limpar extrato?")) { await db.from('operations').delete().eq('user_id', currentUser.id); await carregarDadosCloud(); } }
-        async function limparLogs() { if(confirm("Zerar recargas?")) { await db.from('recharges').delete().eq('user_id', currentUser.id); await carregarDadosCloud(); } }
+
+        async function resetGeralCloud() { 
+            if(confirm("Apagar tudo no SQLite?")) { 
+                await Promise.all([
+                    fetch(`${API_BASE}/api/operations`, { method: 'DELETE' }),
+                    fetch(`${API_BASE}/api/recharges`, { method: 'DELETE' })
+                ]);
+                location.reload(); 
+            } 
+        }
+
+        function renderGanhos() { 
+            const c = document.getElementById('listaGanhos'); 
+            document.getElementById('contDias').innerText = `${logsGanhos.length} LANÇAMENTOS`; 
+            c.innerHTML = ""; 
+            logsGanhos.forEach(g => { 
+                c.innerHTML += `<div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex flex-col items-center"><span class="text-[7px] text-slate-600 font-bold">${g.date}</span><span class="text-xs font-black ${g.value>=0?'text-green-500':'text-red-500'}">R$ ${fmt(g.value)}</span></div>`; 
+            }); 
+        }
+
+        function renderLogs() { 
+            const h = document.getElementById('historicoLogs'); 
+            document.getElementById('contCargas').innerText = `${logs.length} CARGAS`; 
+            h.innerHTML = ""; 
+            logs.forEach((l, i) => { 
+                let e = ""; 
+                if(logs[i+1]) { const d = l.km - logs[i+1].km; if(d>0) e=`<span class="text-blue-500 font-bold">R$ ${(l.value/d).toFixed(2)}/km</span>`; } 
+                h.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center mb-2"><div><p class="text-[8px] text-slate-500 font-black">${l.date.split('T')[0]}</p><p class="text-lg font-black">R$ ${fmt(l.value)}</p></div><div class="text-right"><p class="text-[8px] text-slate-500">KM ${l.km}</p>${e}</div></div>`; 
+            }); 
+        }
+
+        async function limparGanhos() { if(confirm("Limpar extrato?")) { await fetch(`${API_BASE}/api/operations`, { method: 'DELETE' }); await carregarDadosCloud(); } }
+        async function limparLogs() { if(confirm("Zerar recargas?")) { await fetch(`${API_BASE}/api/recharges`, { method: 'DELETE' }); await carregarDadosCloud(); } }
+        
+        window.addEventListener('load', checkAuth);
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW Erro', e)); }); }
     </script>
+
 </body>
 </html>
